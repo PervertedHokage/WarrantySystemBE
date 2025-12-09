@@ -30,4 +30,4 @@ secrets.json
 *.sln.iml
 /WarrantySystem.API/Templates
 /WarrantySystem.API/Properties/PublishProfiles/IISProfile.pubxml
-/WarrantySystem.API/appsettings.json
+
