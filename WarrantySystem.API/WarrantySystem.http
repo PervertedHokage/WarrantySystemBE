@@ -1,0 +1,6 @@
+@WarrantySystem_HostAddress = http://localhost:5215
+
+GET {{WarrantySystem_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
