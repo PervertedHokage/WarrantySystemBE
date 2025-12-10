@@ -9,12 +9,12 @@ public class DynamicAuthorizationMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly string _apiKey;
+
     public DynamicAuthorizationMiddleware(RequestDelegate next, IConfiguration configuration)
     {
         _next = next;
         _apiKey = configuration["ApiKey"] ?? throw new Exception("ApiKey missing in config");
     }
-
 
     public async Task InvokeAsync(HttpContext context, IUserPermissionService permissionService)
     {
@@ -44,7 +44,6 @@ public class DynamicAuthorizationMiddleware
         //if (permissionAttributes != null && permissionAttributes.Count > 0)
         if (authorizeAttribute != null && authorizeAttribute.Count > 0)
         {
-
             bool? isAuthen = context.User.Identity?.IsAuthenticated;
             //Check có token không
             var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -68,8 +67,6 @@ public class DynamicAuthorizationMiddleware
                 return;
             }
 
-
-
             //var session = HttpContext.Session
 
             //Check là admin không
@@ -79,7 +76,6 @@ public class DynamicAuthorizationMiddleware
                 await _next(context);
                 return;
             }
-
 
             //Check có mã quyền không
             if (permissionAttributes != null && permissionAttributes.Count > 0)
@@ -95,7 +91,6 @@ public class DynamicAuthorizationMiddleware
                     }
                 }
             }
-
 
             await _next(context);
             return;

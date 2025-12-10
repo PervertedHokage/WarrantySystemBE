@@ -6,6 +6,7 @@ using WarrantySystem.Model.Context;
 using WarrantySystem.Repository.IRepositories;
 
 namespace WarrantySystem.Repository.Repositories;
+
 public class GenericRepo : IGenericRepo
 {
     private readonly warranty_systemContext _context;
@@ -119,6 +120,7 @@ public class GenericRepo : IGenericRepo
         IEnumerable<T> result = await _dbConnection.QueryAsync<T>(procedureName, parameters, commandType: CommandType.StoredProcedure);
         return result.ToList();
     }
+
     // TWO‐result:
     public async Task<Tuple<List<T1>, List<T2>>> ProcedureToList<T1, T2>(
         string procedureName,

@@ -1,4 +1,4 @@
-﻿namespace WarrantySystem.API.Middleware;
+﻿namespace WarrantySystem.API.Middlewares;
 
 public class JwtSettings
 {

@@ -1,4 +1,5 @@
 ﻿namespace WarrantySystem.Shared.Common;
+
 public class MaHoaMD5
 {
     public static string _code = "RTC%$#tEch~`'3keY";
@@ -164,7 +165,7 @@ public class MaHoaMD5
             System.Security.Cryptography.TripleDESCryptoServiceProvider tdes = new System.Security.Cryptography.TripleDESCryptoServiceProvider();
             // Set the secret key for the tripleDES algorithm
             tdes.Key = keyArray;
-            // Mode of operation. there are other 4 modes. 
+            // Mode of operation. there are other 4 modes.
             // We choose ECB(Electronic code Book)
             tdes.Mode = System.Security.Cryptography.CipherMode.ECB;
             // Padding mode(if any extra byte added)

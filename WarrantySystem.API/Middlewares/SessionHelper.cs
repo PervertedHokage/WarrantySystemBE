@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace WarrantySystem.API.Middleware;
+namespace WarrantySystem.API.Middlewares;
 
 public static class SessionHelper
 {

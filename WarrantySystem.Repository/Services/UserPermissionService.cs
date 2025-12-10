@@ -9,6 +9,7 @@ namespace WarrantySystem.Repository.Services
         public Dictionary<string, string> Claims { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         private readonly IHttpContextAccessor _httpContextAccessor;
         private IGenericRepo _repo;
+
         public UserPermissionService(IHttpContextAccessor httpContextAccessor, IGenericRepo repo)
         {
             _httpContextAccessor = httpContextAccessor;

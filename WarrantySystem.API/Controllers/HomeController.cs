@@ -6,7 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using WarrantySystem.API.Attributes;
-using WarrantySystem.API.Middleware;
+using WarrantySystem.API.Middlewares;
 using WarrantySystem.Model.DTO;
 using WarrantySystem.Model.Entities;
 using WarrantySystem.Repository.IRepositories;
@@ -22,6 +22,7 @@ namespace WarrantySystem.API.Controllers
 
         private readonly IConfiguration _configuration;
         private IGenericRepo _repo;
+
         public HomeController(IOptions<JwtSettings> jwtSettings, IConfiguration configuration, IGenericRepo repo)
         {
             _jwtSettings = jwtSettings.Value;
@@ -45,12 +46,10 @@ namespace WarrantySystem.API.Controllers
 
                 User? hasUser = await _repo.FindModel<User>(u => u.LoginName.ToLower().Trim() == loginName.ToLower().Trim() && u.PasswordHash == password);
 
-
                 if (hasUser == null || hasUser.Id <= 0)
                 {
                     return Unauthorized(ApiResponseFactory.Fail(null, "Sai tên đăng nhập hoặc mật khẩu!"));
                 }
-
 
                 //2. Tạo Claims
                 var claims = new List<Claim>()
@@ -68,7 +67,6 @@ namespace WarrantySystem.API.Controllers
                     var claim = new Claim(item.Name.ToLower(), item.GetValue(hasUser)?.ToString() ?? "");
                     claims.Add(claim);
                 }
-
 
                 //3. Tạo token
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
@@ -99,7 +97,6 @@ namespace WarrantySystem.API.Controllers
             }
         }
 
-
         //[ApiKeyAuthorize]
         //[HttpPost("loginiden")]
         //public async Task< IActionResult> LoginIdentificaion([FromBody] User user)
@@ -116,7 +113,6 @@ namespace WarrantySystem.API.Controllers
         //        string apiKey = _configuration.GetValue<string>("ApiKey") ?? "";
 
         //        User? hasUser = await _repo.FindModel<User>(u => u.LoginName.ToLower().Trim() == loginName.ToLower().Trim() && u.PasswordHash == password);
-
 
         //        if (hasUser == null || hasUser.Id <= 0)
         //        {
@@ -164,7 +160,6 @@ namespace WarrantySystem.API.Controllers
         //        return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
         //    }
         //}
-
 
         [Authorize]
         [RequiresPermission("TEST")]

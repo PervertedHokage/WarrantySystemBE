@@ -1,5 +1,7 @@
 ﻿using System.Linq.Expressions;
+
 namespace WarrantySystem.Repository.IRepositories;
+
 public interface IGenericRepo
 {
     Task<List<T>> GetAll<T>() where T : class;

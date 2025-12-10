@@ -4,7 +4,6 @@ using Microsoft.OpenApi.Models;
 using MySqlConnector;
 using System.Data;
 using System.Text; // Add this using directive
-using WarrantySystem.API.Middleware;
 using WarrantySystem.API.Middlewares;
 using WarrantySystem.Model.Context;
 using WarrantySystem.Model.DTO;
@@ -30,7 +29,6 @@ builder.Services.AddTransient<IDbConnection>(sp =>
     new MySqlConnection(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
 builder.Services.AddMvc().AddJsonOptions(opt => opt.JsonSerializerOptions.PropertyNamingPolicy = null);
 builder.Services.AddScoped<CurrentUser>(provider =>
 {
@@ -38,14 +36,15 @@ builder.Services.AddScoped<CurrentUser>(provider =>
     var claims = context?.User.Claims.ToDictionary(x => x.Type, x => x.Value);
     CurrentUser currentUser = ObjectMapper.GetCurrentUser(claims);
     return currentUser;
-
 });
 builder.Services.AddHttpContextAccessor();
 
 #region DI
+
 builder.Services.AddScoped<IGenericRepo, GenericRepo>();
 builder.Services.AddScoped<IUserPermissionService, UserPermissionService>();
-#endregion
+
+#endregion DI
 
 // Load JWT settings
 var jwtSection = builder.Configuration.GetSection("JwtSettings");
@@ -53,21 +52,21 @@ builder.Services.Configure<JwtSettings>(jwtSection);
 var jwtSettings = jwtSection.Get<JwtSettings>() ?? new JwtSettings();
 
 builder.Services.AddAuthentication("Bearer")
-                .AddJwtBearer("Bearer", options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
 
-                        ValidIssuer = jwtSettings.Issuer,
-                        ValidAudience = jwtSettings.Audience,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
-                        NameClaimType = "sub" // Để Middleware lấy đúng UserID
-                    };
-                });
+            ValidIssuer = jwtSettings.Issuer,
+            ValidAudience = jwtSettings.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+            NameClaimType = "sub" // Để Middleware lấy đúng UserID
+        };
+    });
 builder.Services.AddAuthentication();
 
 //Config session
@@ -114,7 +113,6 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
-
 
 var app = builder.Build();
 

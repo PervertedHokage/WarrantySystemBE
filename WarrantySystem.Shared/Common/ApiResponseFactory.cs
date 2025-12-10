@@ -22,5 +22,4 @@ public static class ApiResponseFactory
             data = data
         };
     }
-
 }
