@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace WarrantySystem.Model.Entities;
 
-public partial class Department
+public partial class Organization
 {
     public int Id { get; set; }
 
-    public string DepartmentCode { get; set; }
+    public string OrganizationCode { get; set; }
 
-    public string DepartmentName { get; set; }
+    public string OrganizationName { get; set; }
 
     public int? ParentId { get; set; }
 }

@@ -14,8 +14,6 @@ public partial class warranty_systemContext : DbContext
     {
     }
 
-    public virtual DbSet<Department> Departments { get; set; }
-
     public virtual DbSet<FormAndFunction> FormAndFunctions { get; set; }
 
     public virtual DbSet<FormAndFunctionGroup> FormAndFunctionGroups { get; set; }
@@ -27,6 +25,8 @@ public partial class warranty_systemContext : DbContext
     public virtual DbSet<OrderDetail> OrderDetails { get; set; }
 
     public virtual DbSet<OrderDetailInfo> OrderDetailInfos { get; set; }
+
+    public virtual DbSet<Organization> Organizations { get; set; }
 
     public virtual DbSet<Product> Products { get; set; }
 
@@ -57,26 +57,6 @@ public partial class warranty_systemContext : DbContext
         modelBuilder
             .UseCollation("utf8mb4_0900_ai_ci")
             .HasCharSet("utf8mb4");
-
-        modelBuilder.Entity<Department>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("department");
-
-            entity.HasIndex(e => e.ParentId, "idx_ParentID_department");
-
-            entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.DepartmentCode)
-                .HasMaxLength(50)
-                .UseCollation("utf8mb3_general_ci")
-                .HasCharSet("utf8mb3");
-            entity.Property(e => e.DepartmentName)
-                .HasMaxLength(100)
-                .UseCollation("utf8mb3_general_ci")
-                .HasCharSet("utf8mb3");
-            entity.Property(e => e.ParentId).HasColumnName("ParentID");
-        });
 
         modelBuilder.Entity<FormAndFunction>(entity =>
         {
@@ -214,6 +194,26 @@ public partial class warranty_systemContext : DbContext
                 .HasCharSet("utf8mb3");
             entity.Property(e => e.UpdatedBy).HasMaxLength(255);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<Organization>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("organization");
+
+            entity.HasIndex(e => e.ParentId, "idx_ParentID_department");
+
+            entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.OrganizationCode)
+                .HasMaxLength(50)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
+            entity.Property(e => e.OrganizationName)
+                .HasMaxLength(100)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
+            entity.Property(e => e.ParentId).HasColumnName("ParentID");
         });
 
         modelBuilder.Entity<Product>(entity =>

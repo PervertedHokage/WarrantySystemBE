@@ -14,6 +14,7 @@ using WarrantySystem.Shared.Common;
 
 namespace WarrantySystem.API.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class HomeController : ControllerBase
@@ -162,7 +163,6 @@ namespace WarrantySystem.API.Controllers
         //}
 
         [Authorize]
-        [RequiresPermission("TEST")]
         //[ApiKeyAuthorize]
         [HttpGet("current-user")]
         public IActionResult GetCurrentUser()

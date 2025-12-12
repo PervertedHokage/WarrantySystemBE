@@ -114,6 +114,19 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+//Config CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("MyCors", builder =>
+    {
+
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

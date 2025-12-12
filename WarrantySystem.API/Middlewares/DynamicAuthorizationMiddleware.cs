@@ -37,7 +37,7 @@ public class DynamicAuthorizationMiddleware
             return;
         }
 
-        // 🔹 Check xem có gắn [RequiresPermission]
+        // Check xem có gắn [RequiresPermission]
         var permissionAttributes = endpoint?.Metadata.GetOrderedMetadata<RequiresPermissionAttribute>();
         var authorizeAttribute = endpoint?.Metadata.GetOrderedMetadata<AuthorizeAttribute>();
 
@@ -70,8 +70,17 @@ public class DynamicAuthorizationMiddleware
             //var session = HttpContext.Session
 
             //Check là admin không
-            var isAdminClaim = context.User.FindFirst("isadmin")?.Value; //NTA B update 041125
-            if (!string.IsNullOrEmpty(isAdminClaim) && bool.TryParse(isAdminClaim, out bool isAdmin) && isAdmin)
+            var isAdminClaim = context.User.FindFirst("isadmin")?.Value;
+
+            bool isAdmin = isAdminClaim switch
+            {
+                "1" => true,
+                "0" => false,
+                var v when bool.TryParse(v, out var parsed) => parsed,
+                _ => false
+            };
+
+            if (isAdmin)
             {
                 await _next(context);
                 return;
