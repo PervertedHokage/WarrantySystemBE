@@ -22,4 +22,6 @@ public partial class Product
     public DateTime? UpdatedDate { get; set; }
 
     public string UpdatedBy { get; set; }
+    public bool IsDeleted { get; set; } = false;
+
 }
