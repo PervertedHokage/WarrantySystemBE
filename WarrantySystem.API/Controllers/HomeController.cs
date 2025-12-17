@@ -5,7 +5,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using WarrantySystem.API.Attributes;
 using WarrantySystem.API.Middlewares;
 using WarrantySystem.Model.DTO;
 using WarrantySystem.Model.Entities;
@@ -14,7 +13,6 @@ using WarrantySystem.Shared.Common;
 
 namespace WarrantySystem.API.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
     public class HomeController : ControllerBase
@@ -55,8 +53,8 @@ namespace WarrantySystem.API.Controllers
                 //2. Tạo Claims
                 var claims = new List<Claim>()
                 {
-                    new Claim(JwtRegisteredClaimNames.Sub,hasUser.Id.ToString()),
-                    new Claim(JwtRegisteredClaimNames.UniqueName,hasUser.LoginName ?? ""),
+                    new(JwtRegisteredClaimNames.Sub,hasUser.Id.ToString()),
+                    new(JwtRegisteredClaimNames.UniqueName,hasUser.LoginName ?? ""),
                 };
 
                 //var dictionary = (IDictionary<string, object>)hasUser;
@@ -76,7 +74,7 @@ namespace WarrantySystem.API.Controllers
                 var token = new JwtSecurityToken(
                     issuer: _jwtSettings.Issuer,
                     audience: _jwtSettings.Audience,
-                    claims: claims.ToArray(),
+                    claims: claims,
                     expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpireMinutes),
                     signingCredentials: creds
                 );
@@ -98,68 +96,32 @@ namespace WarrantySystem.API.Controllers
             }
         }
 
-        //[ApiKeyAuthorize]
-        //[HttpPost("loginiden")]
-        //public async Task< IActionResult> LoginIdentificaion([FromBody] User user)
+        //[HttpPost]
+        //public async Task<IActionResult> Submit()
         //{
-        //    try
-        //    {
-        //        if (string.IsNullOrWhiteSpace(user.LoginName))
+        //    var captcha = Request.Form["g-recaptcha-response"];
+        //    if (string.IsNullOrEmpty(captcha))
+        //        return BadRequest("Captcha required");
+
+        //    var secret = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe";
+
+        //    using var client = new HttpClient();
+        //    var response = await client.PostAsync(
+        //        "https://www.google.com/recaptcha/api/siteverify",
+        //        new FormUrlEncodedContent(new Dictionary<string, string>
         //        {
-        //            return Unauthorized(ApiResponseFactory.Fail(null, "Vui lòng nhập Tên đăng nhập!"));
-        //        }
+        //    { "secret", secret },
+        //    { "response", captcha }
+        //        })
+        //    );
 
-        //        //1. Check user
-        //        string loginName = user.LoginName ?? "";
-        //        string apiKey = _configuration.GetValue<string>("ApiKey") ?? "";
+        //    var json = await response.Content.ReadAsStringAsync();
+        //    dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
 
-        //        User? hasUser = await _repo.FindModel<User>(u => u.LoginName.ToLower().Trim() == loginName.ToLower().Trim() && u.PasswordHash == password);
+        //    if (result.success != true)
+        //        return BadRequest("Captcha failed");
 
-        //        if (hasUser == null || hasUser.Id <= 0)
-        //        {
-        //            return Unauthorized(ApiResponseFactory.Fail(null, "Sai tên đăng nhập hoặc mật khẩu!"));
-        //        }
-        //        var claims = new List<Claim>()
-        //        {
-        //            new Claim(JwtRegisteredClaimNames.Sub,hasUser.Id.ToString()),
-        //            new Claim(JwtRegisteredClaimNames.UniqueName,hasUser.LoginName ?? ""),
-        //        };
-        //        var dictionary = (IDictionary<string, object>)hasUser;
-        //        foreach (var item in dictionary)
-        //        {
-        //            //if (item.Key.ToLower() == "passwordhash") continue;
-
-        //            var claim = new Claim(item.Key.ToLower(), item.Value?.ToString() ?? "");
-        //            claims.Add(claim);
-        //        }
-
-        //        //3. Tạo token
-        //        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
-        //        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        //        var token = new JwtSecurityToken(
-        //            issuer: _jwtSettings.Issuer,
-        //            audience: _jwtSettings.Audience,
-        //            claims: claims.ToArray(),
-        //            expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpireMinutes),
-        //            signingCredentials: creds
-        //        );
-
-        //        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-
-        //        //4.Lưu session trên server
-        //        HttpContext.Session.SetObject<CurrentUser>(_configuration.GetValue<string>("SessionKey"), ObjectMapper.GetCurrentUser(claims.ToDictionary(x => x.Type, x => x.Value)));
-
-        //        return Ok(new
-        //        {
-        //            access_token = tokenString,
-        //            expires = token.ValidTo.AddHours(+7)
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
-        //    }
+        //    return Ok("Form submitted");
         //}
 
         [Authorize]

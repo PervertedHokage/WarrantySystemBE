@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using WarrantySystem.Model.Entities;
 using WarrantySystem.Repository.IRepositories;
 using WarrantySystem.Shared.Common;
+
 namespace WarrantySystem.API.Controllers
 {
     [Authorize]
@@ -10,11 +11,13 @@ namespace WarrantySystem.API.Controllers
     [ApiController]
     public class OrganizationController : ControllerBase
     {
-        IGenericRepo _repo;
+        private IGenericRepo _repo;
+
         public OrganizationController(IGenericRepo repo)
         {
             _repo = repo;
         }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -22,7 +25,6 @@ namespace WarrantySystem.API.Controllers
             {
                 var organizations = await _repo.GetAll<Organization>();
                 return Ok(ApiResponseFactory.Success(organizations));
-
             }
             catch (Exception ex)
             {
@@ -61,6 +63,7 @@ namespace WarrantySystem.API.Controllers
                 return BadRequest(ApiResponseFactory.Fail(ex, "Failed to create organization."));
             }
         }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] Organization organization)
         {
@@ -80,6 +83,7 @@ namespace WarrantySystem.API.Controllers
                 return BadRequest(ApiResponseFactory.Fail(ex, "Failed to update organization."));
             }
         }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
