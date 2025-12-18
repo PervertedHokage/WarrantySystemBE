@@ -31,6 +31,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "issues_groups",
+         "ObjectType": 0
+      },
+      {
          "Name": "order_detail_info",
          "ObjectType": 0
       },

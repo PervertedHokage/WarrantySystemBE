@@ -20,6 +20,8 @@ public partial class warranty_systemContext : DbContext
 
     public virtual DbSet<Issue> Issues { get; set; }
 
+    public virtual DbSet<IssuesGroup> IssuesGroups { get; set; }
+
     public virtual DbSet<Order> Orders { get; set; }
 
     public virtual DbSet<OrderDetail> OrderDetails { get; set; }
@@ -138,6 +140,20 @@ public partial class warranty_systemContext : DbContext
                 .HasMaxLength(100)
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
+            entity.Property(e => e.UpdatedBy).HasMaxLength(255);
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<IssuesGroup>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("issues_groups");
+
+            entity.Property(e => e.CreatedBy).HasMaxLength(255);
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.IsDeleted).HasColumnType("bit(1)");
+            entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.UpdatedBy).HasMaxLength(255);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
         });

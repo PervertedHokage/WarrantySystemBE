@@ -20,4 +20,8 @@ public partial class Issue
     public DateTime? UpdatedDate { get; set; }
 
     public string UpdatedBy { get; set; }
+
+    public int? IssuesGroupId { get; set; }
+    public bool IsDeleted { get; set; }
+
 }
