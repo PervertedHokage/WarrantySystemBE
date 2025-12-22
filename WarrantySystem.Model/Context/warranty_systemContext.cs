@@ -52,6 +52,8 @@ public partial class warranty_systemContext : DbContext
 
     public virtual DbSet<WarrantyClaim> WarrantyClaims { get; set; }
 
+    public virtual DbSet<WarrantyClaimTracking> WarrantyClaimTrackings { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
@@ -447,6 +449,9 @@ public partial class warranty_systemContext : DbContext
 
             entity.ToTable("warranty_claims");
 
+            entity.Property(e => e.ClaimNo)
+                .HasMaxLength(20)
+                .HasComputedColumnSql("concat(_utf8mb4'PBH-',date_format(`CreatedDate`,_utf8mb4'%Y%m%d%H%i%s'))", false);
             entity.Property(e => e.CreatedBy).HasMaxLength(255);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             entity.Property(e => e.CustomerAddress)
@@ -498,6 +503,7 @@ public partial class warranty_systemContext : DbContext
                 .HasMaxLength(50)
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
+            entity.Property(e => e.Status).HasDefaultValueSql("'1'");
             entity.Property(e => e.Transporter)
                 .HasMaxLength(50)
                 .HasComment("Công ty vận chuyển")
@@ -506,6 +512,20 @@ public partial class warranty_systemContext : DbContext
             entity.Property(e => e.Type).HasComment("1 = không có phí, 2 = có phí");
             entity.Property(e => e.UpdatedBy).HasMaxLength(255);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<WarrantyClaimTracking>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("warranty_claim_tracking");
+
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.Note).HasColumnType("text");
+            entity.Property(e => e.StatusText)
+                .HasMaxLength(200)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
         });
 
         OnModelCreatingPartial(modelBuilder);

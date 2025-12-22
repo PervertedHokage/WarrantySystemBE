@@ -4,18 +4,15 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
-   "IrregularWords": null,
    "MinimumProductVersion": "2.6.1248",
    "ModelNamespace": null,
    "OutputContextPath": "Context",
    "OutputPath": "Entities",
-   "PluralRules": null,
    "PreserveCasingWithRegex": true,
    "ProjectRootNamespace": "WarrantySystem.Model",
    "Schemas": null,
    "SelectedHandlebarsLanguage": 2,
    "SelectedToBeGenerated": 0,
-   "SingularRules": null,
    "T4TemplatePath": null,
    "Tables": [
       {
@@ -88,6 +85,10 @@
       },
       {
          "Name": "users",
+         "ObjectType": 0
+      },
+      {
+         "Name": "warranty_claim_tracking",
          "ObjectType": 0
       },
       {

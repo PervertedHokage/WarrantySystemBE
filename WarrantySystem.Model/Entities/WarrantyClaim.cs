@@ -9,6 +9,8 @@ public partial class WarrantyClaim
 {
     public int Id { get; set; }
 
+    public string ClaimNo { get; set; }
+
     public string CustomerName { get; set; }
 
     public string CustomerEmail { get; set; }
@@ -28,32 +30,32 @@ public partial class WarrantyClaim
     /// <summary>
     /// Có bao silicon bảo vệ hay không?
     /// </summary>
-    public sbyte? HasProtection { get; set; }
+    public bool? HasProtection { get; set; }
 
     /// <summary>
     /// Có bộ đổi nguồn (Adapter) không?
     /// </summary>
-    public sbyte? HasAdapter { get; set; }
+    public bool? HasAdapter { get; set; }
 
     /// <summary>
     /// Có cáp dữ liệu không
     /// </summary>
-    public sbyte? HasCable { get; set; }
+    public bool? HasCable { get; set; }
 
     /// <summary>
     /// Có pin không?
     /// </summary>
-    public sbyte? HasBattery { get; set; }
+    public bool? HasBattery { get; set; }
 
     /// <summary>
     /// Có lỗi khi mở hộp không?
     /// </summary>
-    public sbyte? HasIssueWhenOpenBox { get; set; }
+    public bool? HasIssueWhenOpenBox { get; set; }
 
     /// <summary>
     /// Có bị rơi hoặc ép, va đập không?
     /// </summary>
-    public sbyte? HasCollision { get; set; }
+    public bool? HasCollision { get; set; }
 
     /// <summary>
     /// Môi trường sử dụng: 1 = bình thường, 2 = nóng, 3 = lạnh
@@ -85,6 +87,10 @@ public partial class WarrantyClaim
     /// Địa chỉ gửi máy để sửa chữa
     /// </summary>
     public string RecipientAddress { get; set; }
+
+    public int? CustomerRating { get; set; }
+
+    public bool? IsFinished { get; set; }
 
     public DateTime? CreatedDate { get; set; }
 

@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WarrantySystem.Model.Entities;
 using WarrantySystem.Repository.IRepositories;
 using WarrantySystem.Shared.Common;
 
 namespace WarrantySystem.API.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class WarrantyClaimController : Controller
@@ -19,11 +17,22 @@ namespace WarrantySystem.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetData([FromQuery(Name = "phone-number")] string? phoneNumber,
+            [FromQuery(Name = "email")] string? email, [FromQuery(Name = "claim-no")] string? claimNo)
         {
             try
             {
-                var warrantyClaims = await _repo.GetAll<WarrantyClaim>();
+                var phone = phoneNumber?.ToLower();
+                var mail = email?.ToLower();
+                var no = claimNo?.ToLower();
+
+                var warrantyClaims = await _repo.FindByExpression<WarrantyClaim>(
+                    claim =>
+                        (phone != null && claim.CustomerPhoneNumber.ToLower() == phone) ||
+                        (mail != null && claim.CustomerEmail.ToLower() == mail) ||
+                        (no != null && claim.ClaimNo.ToLower() == no)
+                );
+
                 return Ok(ApiResponseFactory.Success(warrantyClaims));
             }
             catch (Exception ex)
@@ -55,7 +64,10 @@ namespace WarrantySystem.API.Controllers
         {
             try
             {
+                warrantyClaim.Id = 0;
                 warrantyClaim.CreatedDate = DateTime.Now;
+                warrantyClaim.CreatedBy = warrantyClaim.CustomerName;
+                warrantyClaim.Status = 1;
                 var createdWarrantyClaim = await _repo.Insert(warrantyClaim);
                 return Ok(ApiResponseFactory.Success(createdWarrantyClaim, "Warranty claim created successfully."));
             }
