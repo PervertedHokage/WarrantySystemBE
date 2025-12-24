@@ -24,4 +24,12 @@ public partial class OrderDetail
     public DateTime? UpdatedDate { get; set; }
 
     public string UpdatedBy { get; set; }
+
+    public bool IsDeleted { get; set; }
+
+    public DateTime? DateStart { get; set; }
+
+    public DateTime? DateEnd { get; set; }
+
+    public string Code { get; set; }
 }

@@ -55,6 +55,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "quotations",
+         "ObjectType": 0
+      },
+      {
          "Name": "refresh_tokens",
          "ObjectType": 0
       },
@@ -95,7 +99,23 @@
          "ObjectType": 0
       },
       {
+         "Name": "warranty_claim_tracking",
+         "ObjectType": 0
+      },
+      {
          "Name": "warranty_claims",
+         "ObjectType": 0
+      },
+      {
+         "Name": "work_order",
+         "ObjectType": 0
+      },
+      {
+         "Name": "work_order_spare_parts",
+         "ObjectType": 0
+      },
+      {
+         "Name": "work_order_status",
          "ObjectType": 0
       }
    ],

@@ -22,4 +22,8 @@ public partial class Order
     public DateTime? UpdatedDate { get; set; }
 
     public string UpdatedBy { get; set; }
+
+    public bool IsDeleted { get; set; }
+
+    public string CustomerEmail { get; set; }
 }

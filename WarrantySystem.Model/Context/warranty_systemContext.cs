@@ -32,6 +32,8 @@ public partial class warranty_systemContext : DbContext
 
     public virtual DbSet<Product> Products { get; set; }
 
+    public virtual DbSet<Quotation> Quotations { get; set; }
+
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
@@ -53,6 +55,14 @@ public partial class warranty_systemContext : DbContext
     public virtual DbSet<UserGroupRightDistribution> UserGroupRightDistributions { get; set; }
 
     public virtual DbSet<WarrantyClaim> WarrantyClaims { get; set; }
+
+    public virtual DbSet<WarrantyClaimTracking> WarrantyClaimTrackings { get; set; }
+
+    public virtual DbSet<WorkOrder> WorkOrders { get; set; }
+
+    public virtual DbSet<WorkOrderSparePart> WorkOrderSpareParts { get; set; }
+
+    public virtual DbSet<WorkOrderStatus> WorkOrderStatuses { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -150,9 +160,9 @@ public partial class warranty_systemContext : DbContext
 
             entity.ToTable("issues_groups");
 
+            entity.Property(e => e.Code).HasMaxLength(20);
             entity.Property(e => e.CreatedBy).HasMaxLength(255);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
-            entity.Property(e => e.IsDeleted).HasColumnType("bit(1)");
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.UpdatedBy).HasMaxLength(255);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
@@ -170,6 +180,7 @@ public partial class warranty_systemContext : DbContext
                 .HasMaxLength(100)
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
+            entity.Property(e => e.CustomerEmail).HasMaxLength(50);
             entity.Property(e => e.CustomerName)
                 .HasMaxLength(50)
                 .UseCollation("utf8mb3_general_ci")
@@ -188,8 +199,11 @@ public partial class warranty_systemContext : DbContext
 
             entity.ToTable("order_details");
 
+            entity.Property(e => e.Code).HasMaxLength(20);
             entity.Property(e => e.CreatedBy).HasMaxLength(255);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.DateEnd).HasColumnType("datetime");
+            entity.Property(e => e.DateStart).HasColumnType("datetime");
             entity.Property(e => e.Quantity).HasPrecision(10, 2);
             entity.Property(e => e.Stt).HasColumnName("STT");
             entity.Property(e => e.UpdatedBy).HasMaxLength(255);
@@ -254,6 +268,41 @@ public partial class warranty_systemContext : DbContext
                 .HasCharSet("utf8mb3");
             entity.Property(e => e.UpdatedBy).HasMaxLength(255);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<Quotation>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("quotations");
+
+            entity.HasIndex(e => e.QuotationNumber, "QuotationNumber_UNIQUE").IsUnique();
+
+            entity.Property(e => e.CreatedBy).HasMaxLength(255);
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.CustomerAddress)
+                .HasMaxLength(50)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
+            entity.Property(e => e.CustomerEmail)
+                .HasMaxLength(50)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
+            entity.Property(e => e.CustomerName).HasMaxLength(50);
+            entity.Property(e => e.CustomerPhoneNumber)
+                .HasMaxLength(50)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
+            entity.Property(e => e.DeadLine).HasColumnType("datetime");
+            entity.Property(e => e.Note).HasMaxLength(200);
+            entity.Property(e => e.QuotationNumber).HasMaxLength(50);
+            entity.Property(e => e.ReplyDate).HasColumnType("datetime");
+            entity.Property(e => e.StatusQuotation).HasComment("1 = Đã gửi, 2 = Chưa gửi, 3 = Đã duyệt, 4 = Đã từ chối, 5 = Hết hạn");
+            entity.Property(e => e.UpdatedBy).HasMaxLength(255);
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+            entity.Property(e => e.Vatfee)
+                .HasPrecision(6, 2)
+                .HasColumnName("VATFee");
         });
 
         modelBuilder.Entity<RefreshToken>(entity =>
@@ -463,6 +512,9 @@ public partial class warranty_systemContext : DbContext
 
             entity.ToTable("warranty_claims");
 
+            entity.Property(e => e.ClaimNo)
+                .HasMaxLength(20)
+                .HasComputedColumnSql("concat(_utf8mb4'PBH-',date_format(`CreatedDate`,_utf8mb4'%Y%m%d%H%i%s'))", false);
             entity.Property(e => e.CreatedBy).HasMaxLength(255);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             entity.Property(e => e.CustomerAddress)
@@ -477,10 +529,7 @@ public partial class warranty_systemContext : DbContext
                 .HasMaxLength(50)
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
-            entity.Property(e => e.CustomerPhoneNumber)
-                .HasMaxLength(50)
-                .UseCollation("utf8mb3_general_ci")
-                .HasCharSet("utf8mb3");
+            entity.Property(e => e.CustomerPhoneNumber).HasMaxLength(50);
             entity.Property(e => e.FileAddress)
                 .HasMaxLength(200)
                 .UseCollation("utf8mb3_general_ci")
@@ -501,10 +550,6 @@ public partial class warranty_systemContext : DbContext
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
             entity.Property(e => e.OperationEnvironment).HasComment("Môi trường sử dụng: 1 = bình thường, 2 = nóng, 3 = lạnh");
-            entity.Property(e => e.ProductName)
-                .HasMaxLength(50)
-                .UseCollation("utf8mb3_general_ci")
-                .HasCharSet("utf8mb3");
             entity.Property(e => e.RecipientAddress)
                 .HasMaxLength(100)
                 .HasComment("Địa chỉ gửi máy để sửa chữa")
@@ -514,6 +559,7 @@ public partial class warranty_systemContext : DbContext
                 .HasMaxLength(50)
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
+            entity.Property(e => e.Status).HasDefaultValueSql("'1'");
             entity.Property(e => e.Transporter)
                 .HasMaxLength(50)
                 .HasComment("Công ty vận chuyển")
@@ -522,6 +568,55 @@ public partial class warranty_systemContext : DbContext
             entity.Property(e => e.Type).HasComment("1 = không có phí, 2 = có phí");
             entity.Property(e => e.UpdatedBy).HasMaxLength(255);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<WarrantyClaimTracking>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("warranty_claim_tracking");
+
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.Note).HasColumnType("text");
+            entity.Property(e => e.StatusText)
+                .HasMaxLength(200)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
+        });
+
+        modelBuilder.Entity<WorkOrder>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("work_order");
+
+            entity.Property(e => e.Code).HasMaxLength(50);
+            entity.Property(e => e.CompletedDate).HasColumnType("datetime");
+            entity.Property(e => e.CreatedBy).HasMaxLength(50);
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.DateEnd).HasColumnType("datetime");
+            entity.Property(e => e.DateStart).HasColumnType("datetime");
+            entity.Property(e => e.Note).HasMaxLength(200);
+            entity.Property(e => e.UpdatedBy).HasMaxLength(50);
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<WorkOrderSparePart>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("work_order_spare_parts");
+
+            entity.Property(e => e.Quantity).HasMaxLength(45);
+        });
+
+        modelBuilder.Entity<WorkOrderStatus>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("work_order_status");
+
+            entity.Property(e => e.Status).HasMaxLength(50);
         });
 
         OnModelCreatingPartial(modelBuilder);

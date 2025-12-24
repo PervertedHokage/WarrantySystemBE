@@ -22,6 +22,6 @@ public partial class Issue
     public string UpdatedBy { get; set; }
 
     public int? IssuesGroupId { get; set; }
-    public bool IsDeleted { get; set; }
 
+    public bool IsDeleted { get; set; }
 }

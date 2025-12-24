@@ -18,4 +18,8 @@ public partial class SparePartsGroup
     public DateTime? UpdatedDate { get; set; }
 
     public string UpdatedBy { get; set; }
+
+    public int? ProductId { get; set; }
+
+    public bool IsDeleted { get; set; }
 }
