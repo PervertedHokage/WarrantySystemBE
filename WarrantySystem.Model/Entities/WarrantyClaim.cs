@@ -98,5 +98,5 @@ public partial class WarrantyClaim
 
     public string UpdatedBy { get; set; }
 
-    public bool? IsDeleted { get; set; }
+    public bool IsDeleted { get; set; }
 }

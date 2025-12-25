@@ -16,18 +16,14 @@ namespace WarrantySystem.API.Controllers.Products
             _repo = repo;
         }
 
-        [HttpGet("get-unit")]
+        [HttpGet]
         public async Task<IActionResult> GetUnits()
         {
             try
             {
                 var units = (await _repo.FindByExpression<Unit>(x => x.IsDeleted == false));
-                return Ok(new
-                {
-                    status = 1,
-                    data = units
+                return Ok(ApiResponseFactory.Success(units, "Lấy dữ liệu thành công"));
 
-                });
             }
             catch (Exception ex)
             {
@@ -36,7 +32,7 @@ namespace WarrantySystem.API.Controllers.Products
             }
         }
 
-        [HttpPost("save-data-unit")]
+        [HttpPost]
         public async Task<IActionResult> SaveData([FromBody] Unit units)
         {
             try

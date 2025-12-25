@@ -19,18 +19,13 @@ namespace WarrantySystem.API.Controllers.Products
             _repo = repo;
         }
 
-        [HttpGet("get-products")]
+        [HttpGet]
         public async Task<IActionResult> GetProducts()
         {
             try
             {
                 var products = (await _repo.FindByExpression<Product>(x => x.IsDeleted == false));
-                return Ok(new
-                {
-                    status = 1,
-                    data = products
-
-                });
+                return Ok(ApiResponseFactory.Success(products, "Lấy dữ liệu thành công"));
             }
             catch (Exception ex)
             {
@@ -39,18 +34,14 @@ namespace WarrantySystem.API.Controllers.Products
             }
         }
 
-        [HttpGet("get-spare-parts-group")]
+        [HttpGet("spare-parts-group")]
         public async Task<IActionResult> GetSparePartGroups()
         {
             try
             {
                 var data = (await _repo.FindByExpression<SparePartsGroup>(x => x.IsDeleted == false));
-                return Ok(new
-                {
-                    status = 1,
-                    data = data
+                return Ok(ApiResponseFactory.Success(data, "Lấy dữ liệu thành công"));
 
-                });
             }
             catch (Exception ex)
             {
@@ -59,7 +50,7 @@ namespace WarrantySystem.API.Controllers.Products
             }
         }
 
-        [HttpPost("get-spare-parts")]
+        [HttpPost("spare-parts")]
         public async Task<IActionResult> GetListIssues([FromBody] SparePartsParam request)
         {
             try
@@ -67,14 +58,8 @@ namespace WarrantySystem.API.Controllers.Products
                 var sparePart = await _repo.ProcedureToList<dynamic>("spGetSpareParts",
                     new string[] { "@ProductId" },
                     new object[] { request.ProductId });
-                return Ok(new
-                {
-                    status = 1,
-                    data = new
-                    {
-                        asset = sparePart
-                    }
-                });
+                return Ok(ApiResponseFactory.Success(sparePart, "Lấy dữ liệu thành công"));
+
             }
             catch (Exception ex)
             {
@@ -82,18 +67,14 @@ namespace WarrantySystem.API.Controllers.Products
             }
         }
 
-        [HttpGet("get-unit")]
+        [HttpGet("unit")]
         public async Task<IActionResult> GetUnits()
         {
             try
             {
                 var units = (await _repo.FindByExpression<Unit>(x => x.IsDeleted == false));
-                return Ok(new
-                {
-                    status = 1,
-                    data = units
+                return Ok(ApiResponseFactory.Success(units, "Lấy dữ liệu thành công"));
 
-                });
             }
             catch (Exception ex)
             {
@@ -219,5 +200,33 @@ namespace WarrantySystem.API.Controllers.Products
             }
         }
 
+        [HttpPost("delete")]
+        public async Task<IActionResult> Delete([FromBody] List<int> ids)
+        {
+            try
+            {
+                var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
+                var currentUser = ObjectMapper.GetCurrentUser(claims);
+                if (ids == null || ids.Count == 0)
+                    return BadRequest(ApiResponseFactory.Fail(null, "Vui lòng chọn sản phẩm để xóa"));
+                foreach (var item in ids)
+                {
+
+                    var product = await _repo.GetById<Product>(item);
+                    //if (work.UsersId != currentUser.EmployeeID)
+                    //{
+                    //    return BadRequest(ApiResponseFactory.Fail(null, $"Bạn không thể xóa phiếu yêu cầu công việc của người khác"));
+                    //}
+                    product.IsDeleted = true;
+                    await _repo.Update(product);
+
+                }
+                return Ok(ApiResponseFactory.Success(ids, "Xóa thành công"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
+            }
+        }
     }
 }

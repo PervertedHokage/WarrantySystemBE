@@ -19,18 +19,14 @@ namespace WarrantySystem.API.Controllers.Issues
         }
 
 
-        [HttpGet("get-issues-group")]
+        [HttpGet]
         public async Task<IActionResult> GetIssues()
         {
             try
             {
                 var issues = (await _repo.FindByExpression<IssuesGroup>(x => x.IsDeleted == false));
-                return Ok(new
-                {
-                    status = 1,
-                    data = issues
+                return Ok(ApiResponseFactory.Success(issues, "Lấy dữ liệu thành công"));
 
-                });
             }
             catch (Exception ex)
             {
@@ -39,7 +35,7 @@ namespace WarrantySystem.API.Controllers.Issues
             }
         }
 
-        [HttpPost("get-issues")]
+        [HttpPost("issues")]
         public async Task<IActionResult> GetListIssues([FromBody] IssuesParam request)
         {
             try
@@ -47,14 +43,8 @@ namespace WarrantySystem.API.Controllers.Issues
                 var issues = await _repo.ProcedureToList<dynamic>("spGetIssues",
                     new string[] { "@IssuesGroupId" },
                     new object[] { request.IssuesGroupId });
-                return Ok(new
-                {
-                    status = 1,
-                    data = new
-                    {
-                        asset = issues
-                    }
-                });
+                return Ok(ApiResponseFactory.Success(issues, "Lấy dữ liệu thành công"));
+
             }
             catch (Exception ex)
             {
@@ -126,12 +116,7 @@ namespace WarrantySystem.API.Controllers.Issues
             }
             catch (Exception ex)
             {
-                return BadRequest(new
-                {
-                    status = 0,
-                    message = ex.Message,
-                    error = ex.ToString()
-                });
+                return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
             }
         }
 

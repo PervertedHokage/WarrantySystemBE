@@ -30,8 +30,13 @@ namespace WarrantySystem.API.Controllers.WorkOrders
             public int Status { get; set; }
 
         }
+        public class WarrantyClaimParam
+        {
+            public int WarrantyClaimID { get; set; }
 
-        [HttpPost("get-work-order")]
+        }
+
+        [HttpPost]
         public async Task<IActionResult> GetListWorkOrders([FromBody] WorkOrderParam request)
         {
             try
@@ -40,14 +45,8 @@ namespace WarrantySystem.API.Controllers.WorkOrders
                     new string[] { "@WorkOrderID" },
                     new object[] { request.WorkOrderID });
 
-                return Ok(new
-                {
-                    status = 1,
-                    data = new
-                    {
-                        asset = work
-                    }
-                });
+                return Ok(ApiResponseFactory.Success(work, "Lấy dữ liệu thành công"));
+
             }
             catch (Exception ex)
             {
@@ -55,7 +54,25 @@ namespace WarrantySystem.API.Controllers.WorkOrders
             }
         }
 
-        [HttpPost("get-work-order-detail")]
+        [HttpPost("warranty-claim")]
+        public async Task<IActionResult> GetWarrantyClaims([FromBody] WarrantyClaimParam request)
+        {
+            try
+            {
+                var claim = await _repo.ProcedureToList<dynamic>("spGetWarrantyClaim",
+                    new string[] { "@WarrantyClaimID" },
+                    new object[] { request.WarrantyClaimID });
+
+                return Ok(ApiResponseFactory.Success(claim, "Lấy dữ liệu thành công"));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
+            }
+        }
+
+        [HttpPost("work-order-detail")]
         public async Task<IActionResult> GetListWorkOrderDetails([FromBody] WorkOrderParam request)
         {
             try
@@ -79,7 +96,7 @@ namespace WarrantySystem.API.Controllers.WorkOrders
             }
         }
 
-        [HttpPost("get-employees")]
+        [HttpPost("employees")]
         public async Task<IActionResult> GetListEmployees([FromBody] EmployeeParam request)
         {
             try
@@ -87,14 +104,8 @@ namespace WarrantySystem.API.Controllers.WorkOrders
                 var employees = await _repo.ProcedureToList<dynamic>("spGetUser",
                     new string[] { "@Status" },
                     new object[] { request.Status });
-                return Ok(new
-                {
-                    status = 1,
-                    data = new
-                    {
-                        asset = employees
-                    }
-                });
+                return Ok(ApiResponseFactory.Success(employees, "Lấy dữ liệu thành công"));
+
             }
             catch (Exception ex)
             {
@@ -102,18 +113,14 @@ namespace WarrantySystem.API.Controllers.WorkOrders
             }
         }
 
-        [HttpGet("get-status")]
+        [HttpGet("status")]
         public async Task<IActionResult> GetStatus()
         {
             try
             {
                 var status = (await _repo.FindByExpression<WorkOrderStatus>(x => x.IsDeleted == false));
-                return Ok(new
-                {
-                    status = 1,
-                    data = status
+                return Ok(ApiResponseFactory.Success(status, "Lấy dữ liệu thành công"));
 
-                });
             }
             catch (Exception ex)
             {
@@ -122,18 +129,14 @@ namespace WarrantySystem.API.Controllers.WorkOrders
             }
         }
 
-        [HttpGet("get-quotation")]
+        [HttpGet("quotation")]
         public async Task<IActionResult> GetQuotations()
         {
             try
             {
                 var quotation = (await _repo.FindByExpression<Quotation>(x => x.IsDeleted == false));
-                return Ok(new
-                {
-                    status = 1,
-                    data = quotation
+                return Ok(ApiResponseFactory.Success(quotation, "Lấy dữ liệu thành công"));
 
-                });
             }
             catch (Exception ex)
             {
@@ -142,25 +145,21 @@ namespace WarrantySystem.API.Controllers.WorkOrders
             }
         }
 
-        [HttpGet("get-warranty-claim")]
-        public async Task<IActionResult> GetWarrantyClaims()
-        {
-            try
-            {
-                var claim = (await _repo.FindByExpression<WarrantyClaim>(x => x.IsDeleted == false));
-                return Ok(new
-                {
-                    status = 1,
-                    data = claim
+        //[HttpGet("warranty-claim")]
+        //public async Task<IActionResult> GetWarrantyClaims()
+        //{
+        //    try
+        //    {
+        //        var claim = (await _repo.FindByExpression<WarrantyClaim>(x => x.IsDeleted == false));
+        //        return Ok(ApiResponseFactory.Success(claim, "Lấy dữ liệu thành công"));
 
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
 
-            }
-        }
+        //    }
+        //}
 
 
         [HttpPost("save-data-work-order")]

@@ -24,7 +24,7 @@ namespace WarrantySystem.API.Controllers.SalesOrder
 
         }
 
-        [HttpPost("get-order")]
+        [HttpPost]
         public async Task<IActionResult> GetListOrder([FromBody] OrderSaleParam request)
         {
             try
@@ -32,14 +32,8 @@ namespace WarrantySystem.API.Controllers.SalesOrder
                 var order = await _repo.ProcedureToList<dynamic>("spGetOrder",
                     new string[] { "@OrderId" },
                     new object[] { request.OrderId });
-                return Ok(new
-                {
-                    status = 1,
-                    data = new
-                    {
-                        asset = order
-                    }
-                });
+                return Ok(ApiResponseFactory.Success(order, "Lấy dữ liệu thành công"));
+
             }
             catch (Exception ex)
             {
@@ -48,7 +42,7 @@ namespace WarrantySystem.API.Controllers.SalesOrder
         }
 
 
-        [HttpPost("get-product")]
+        [HttpPost("product")]
         public async Task<IActionResult> GetListProduct([FromBody] AllProduct request)
         {
             try
@@ -56,14 +50,8 @@ namespace WarrantySystem.API.Controllers.SalesOrder
                 var product = await _repo.ProcedureToList<dynamic>("spGetProduct",
                     new string[] { "@ProductId" },
                     new object[] { request.ProductId });
-                return Ok(new
-                {
-                    status = 1,
-                    data = new
-                    {
-                        asset = product
-                    }
-                });
+                return Ok(ApiResponseFactory.Success(product, "Lấy dữ liệu thành công"));
+
             }
             catch (Exception ex)
             {
@@ -203,12 +191,8 @@ namespace WarrantySystem.API.Controllers.SalesOrder
             }
             catch (Exception ex)
             {
-                return BadRequest(new
-                {
-                    status = 0,
-                    message = ex.Message,
-                    error = ex.ToString()
-                });
+                return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
+
             }
         }
     }

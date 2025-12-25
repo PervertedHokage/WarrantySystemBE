@@ -23,7 +23,7 @@ namespace WarrantySystem.API.Controllers.Products
 
         }
 
-        [HttpPost("get-serial")]
+        [HttpPost]
         public async Task<IActionResult> GetListIssues([FromBody] SerialParam request)
         {
             try
@@ -31,14 +31,8 @@ namespace WarrantySystem.API.Controllers.Products
                 var serial = await _repo.ProcedureToList<dynamic>("spGetSerial",
                     new string[] { "@ProductId" },
                     new object[] { request.ProductId });
-                return Ok(new
-                {
-                    status = 1,
-                    data = new
-                    {
-                        asset = serial
-                    }
-                });
+                return Ok(ApiResponseFactory.Success(serial, "Lấy dữ liệu thành công"));
+
             }
             catch (Exception ex)
             {
