@@ -120,6 +120,35 @@ namespace WarrantySystem.API.Controllers.Issues
             }
         }
 
+        [HttpPost("delete")]
+        public async Task<IActionResult> Delete([FromBody] List<int> ids)
+        {
+            try
+            {
+                var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
+                var currentUser = ObjectMapper.GetCurrentUser(claims);
+                if (ids == null || ids.Count == 0)
+                    return BadRequest(ApiResponseFactory.Fail(null, "Vui lòng chọn lỗi để xóa"));
+                foreach (var item in ids)
+                {
+
+                    var issues = await _repo.GetById<IssuesGroup>(item);
+                    //if (work.UsersId != currentUser.EmployeeID)
+                    //{
+                    //    return BadRequest(ApiResponseFactory.Fail(null, $"Bạn không thể xóa phiếu yêu cầu công việc của người khác"));
+                    //}
+                    issues.IsDeleted = true;
+                    await _repo.Update(issues);
+
+                }
+                return Ok(ApiResponseFactory.Success(ids, "Xóa thành công"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
+            }
+        }
+
 
     }
 }

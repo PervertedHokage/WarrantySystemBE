@@ -204,6 +204,7 @@ public partial class warranty_systemContext : DbContext
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             entity.Property(e => e.DateEnd).HasColumnType("datetime");
             entity.Property(e => e.DateStart).HasColumnType("datetime");
+            entity.Property(e => e.Price).HasPrecision(18, 2);
             entity.Property(e => e.Quantity).HasPrecision(10, 2);
             entity.Property(e => e.Stt).HasColumnName("STT");
             entity.Property(e => e.UpdatedBy).HasMaxLength(255);
@@ -512,9 +513,7 @@ public partial class warranty_systemContext : DbContext
 
             entity.ToTable("warranty_claims");
 
-            entity.Property(e => e.ClaimNo)
-                .HasMaxLength(20)
-                .HasComputedColumnSql("concat(_utf8mb4'PBH-',date_format(`CreatedDate`,_utf8mb4'%Y%m%d%H%i%s'))", false);
+            entity.Property(e => e.ClaimNo).HasMaxLength(20);
             entity.Property(e => e.CreatedBy).HasMaxLength(255);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             entity.Property(e => e.CustomerAddress)

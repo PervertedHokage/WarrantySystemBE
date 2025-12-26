@@ -113,18 +113,31 @@ namespace WarrantySystem.API.Controllers.Products
                 }
 
                 // Xử lý xóa chi tiết trong group này (nếu edit)
-                if (dto.DeletedSparePartGroup.Count > 0)
+                if (dto.DeletedSparePartGroup?.Count > 0)
                 {
-                    foreach (var item in dto.DeletedSparePartGroup)
+                    foreach (var groupId in dto.DeletedSparePartGroup)
                     {
-                        var deletedSparePartGroup = await _repo.GetById<SparePartsGroup>(item);
-                        if (deletedSparePartGroup != null)
+                        // Xóa mềm group
+                        var group = await _repo.GetById<SparePartsGroup>(groupId);
+                        if (group != null)
                         {
-                            deletedSparePartGroup.IsDeleted = true;
-                            await _repo.Update(deletedSparePartGroup);
+                            group.IsDeleted = true;
+                            await _repo.Update(group);
+                        }
+
+                        // Xóa mềm toàn bộ spare part thuộc group
+                        var spareParts = await _repo.FindByExpression<SparePart>(
+                            x => x.SparePartGroupId == groupId && !x.IsDeleted
+                        );
+
+                        foreach (var sparePart in spareParts)
+                        {
+                            sparePart.IsDeleted = true;
+                            await _repo.Update(sparePart);
                         }
                     }
                 }
+
 
                 foreach (var groupWithDetails in dto.SparePartsGroups)
                 {
@@ -167,19 +180,19 @@ namespace WarrantySystem.API.Controllers.Products
                         }
                     }
                     // Xử lý xóa chi tiết trong group này (nếu edit)
-                    if (groupWithDetails.DeletedSparePart != null && groupWithDetails.DeletedSparePart.Any())
-                    {
-                        foreach (var item in groupWithDetails.DeletedSparePart)
-                        {
-                            var deletedSparePart = await _repo.GetById<SparePart>(item);
-                            if (deletedSparePart != null)
-                            {
-                                deletedSparePart.IsDeleted = true;
-                                await _repo.Update(deletedSparePart);
-                            }
+                    //if (groupWithDetails.DeletedSparePart != null && groupWithDetails.DeletedSparePart.Any())
+                    //{
+                    //    foreach (var item in groupWithDetails.DeletedSparePart)
+                    //    {
+                    //        var deletedSparePart = await _repo.GetById<SparePart>(item);
+                    //        if (deletedSparePart != null)
+                    //        {
+                    //            deletedSparePart.IsDeleted = true;
+                    //            await _repo.Update(deletedSparePart);
+                    //        }
 
-                        }
-                    }
+                    //    }
+                    //}
                 }
 
                 return Ok(new

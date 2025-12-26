@@ -13,6 +13,7 @@ namespace WarrantySystem.API.Controllers.SalesOrder
     public class SaleOrderController : ControllerBase
     {
         private IGenericRepo _repo;
+        private static readonly SemaphoreSlim _codeGenerationLock = new SemaphoreSlim(1, 1);
 
         public SaleOrderController(IGenericRepo repo)
         {
@@ -130,46 +131,6 @@ namespace WarrantySystem.API.Controllers.SalesOrder
                         }
                     }
 
-                    // order detail
-                    //if (dto.OrderDetails != null && dto.OrderDetails.Any())
-                    //{
-                    //    foreach (var item in dto.OrderDetails)
-                    //    {
-                    //        item.OrderId = OrderID;
-                    //        var existing = (await _repo.FindByExpression<OrderDetail>(x => x.OrderId == OrderID && x.Id == item.Id));
-
-                    //        if (existing == null || item.Id <= 0)
-                    //        {
-                    //            await _repo.Insert(item);
-                    //            OrderDetailID = item.Id;
-                    //        }
-
-                    //        else
-                    //        {
-                    //            await _repo.Update(item);
-                    //            OrderDetailID = item.Id;
-                    //        }
-
-                    //    }
-                    //}
-
-                    //// order-detail-info
-                    //if (dto.SaleOrderDetailDTO. != null && dto.OrderDetailInfo.Any())
-                    //{
-                    //    foreach (var item in dto.OrderDetailInfo)
-                    //    {
-                    //        item.OrderDetailId = OrderDetailID;
-                    //        //var existing = (await _repo.FindByExpression<OrderDetailInfo>(x => x.OrderDetailId == OrderDetailID && x.Id == item.Id));
-
-                    //        if (item.Id <= 0)
-                    //        {
-                    //            await _repo.Insert(item);
-                    //        }
-
-                    //        else
-                    //            await _repo.Update(item);
-                    //    }
-                    //}
                     if (dto.DeletedOrder?.Count > 0)
                     {
                         foreach (var item in dto.DeletedOrder)
@@ -195,5 +156,47 @@ namespace WarrantySystem.API.Controllers.SalesOrder
 
             }
         }
+
+        [HttpPost("delete")]
+        public async Task<IActionResult> Delete([FromBody] List<int> ids)
+        {
+            try
+            {
+                if (ids == null || ids.Count == 0)
+                    return BadRequest(ApiResponseFactory.Fail(null, "Vui lòng chọn đơn hàng để xóa"));
+
+                foreach (var detailId in ids)
+                {
+       
+                    var orderDetail = await _repo.GetById<OrderDetail>(detailId);
+                    if (orderDetail == null) continue;
+
+                    orderDetail.IsDeleted = true;
+                    await _repo.Update(orderDetail);
+
+                    var hasAnyDetail = await _repo.FindByExpression<OrderDetail>(
+                        x => x.OrderId == orderDetail.OrderId && !x.IsDeleted
+                    );
+
+                    if (!hasAnyDetail.Any())
+                    {
+                        var order = await _repo.GetById<Order>(orderDetail.OrderId.Value);
+                        if (order != null)
+                        {
+                            order.IsDeleted = true;
+                            await _repo.Update(order);
+                        }
+                    }
+                }
+
+                return Ok(ApiResponseFactory.Success(ids, "Xóa thành công"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
+            }
+        }
+
+
     }
 }

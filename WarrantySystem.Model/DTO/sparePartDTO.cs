@@ -17,7 +17,7 @@ namespace WarrantySystem.Model.DTO
     {
         public SparePartsGroup SparePartsGroup { get; set; }
         public List<SparePart> SparePart { get; set; }
-        public List<int> DeletedSparePart { get; set; }
+        //public List<int> DeletedSparePart { get; set; }
     }
 
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WarrantySystem.Model.DTO;
 using WarrantySystem.Model.Entities;
 using WarrantySystem.Model.Param;
@@ -81,14 +82,8 @@ namespace WarrantySystem.API.Controllers.WorkOrders
                     new string[] { "@WorkOrderID" },
                     new object[] { request.WorkOrderID });
 
-                return Ok(new
-                {
-                    status = 1,
-                    data = new
-                    {
-                        asset = workdetail
-                    }
-                });
+
+                return Ok(ApiResponseFactory.Success(workdetail, "Lấy dữ liệu thành công"));
             }
             catch (Exception ex)
             {
