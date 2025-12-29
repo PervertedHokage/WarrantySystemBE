@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using WarrantySystem.Model.DTO;
 using WarrantySystem.Model.Entities;
 using WarrantySystem.Repository.IRepositories;
 using WarrantySystem.Shared.Common;
 
 namespace WarrantySystem.API.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class WarrantyClaimController : Controller
@@ -19,11 +18,15 @@ namespace WarrantySystem.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetData([FromQuery(Name = "phone-number")] string? phoneNumber,
+            [FromQuery(Name = "email")] string? email, [FromQuery(Name = "claim-no")] string? claimNo)
         {
             try
             {
-                var warrantyClaims = await _repo.GetAll<WarrantyClaim>();
+                var warrantyClaims = await _repo.ProcedureToList<WarrantyClaimDTO>("spGetWarrantyClaims",
+                    ["p_PhoneNumber", "p_Email", "p_ClaimNo", "p_FromDate", "p_ToDate", "p_Status"],
+                    [phoneNumber, email, claimNo, null, null, 0]);
+
                 return Ok(ApiResponseFactory.Success(warrantyClaims));
             }
             catch (Exception ex)
@@ -31,7 +34,45 @@ namespace WarrantySystem.API.Controllers
                 return BadRequest(ApiResponseFactory.Fail(ex, "Failed to retrieve warranty claims."));
             }
         }
+        [HttpGet("filter")]
+        public async Task<IActionResult> GetDataAsAdmin(
+            [FromQuery(Name = "phone-number")] string? phoneNumber,
+            [FromQuery(Name = "email")] string? email,
+            [FromQuery(Name = "claim-no")] string? claimNo,
+            [FromQuery(Name = "from-date")] DateTime fromDate,
+            [FromQuery(Name = "to-date")] DateTime toDate,
+            [FromQuery(Name = "status")] int status)
+        {
+            try
+            {
+                var fromDateStart = fromDate.Date;
+                var toDateEnd = toDate.Date.AddDays(1).AddMilliseconds(-1);
+                var warrantyClaims = await _repo.ProcedureToList<WarrantyClaimDTO>("spGetWarrantyClaims",
+                    ["p_PhoneNumber", "p_Email", "p_ClaimNo", "p_FromDate", "p_ToDate", "p_Status"],
+                    [phoneNumber, email, claimNo, fromDateStart, toDateEnd, status]);
 
+                return Ok(ApiResponseFactory.Success(warrantyClaims));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponseFactory.Fail(ex, "Failed to retrieve warranty claims."));
+            }
+        }
+        [HttpGet("info")]
+        public async Task<IActionResult> GetAllDataAsAdmin()
+        {
+            try
+            {
+                var warrantyClaims = await _repo.ProcedureToList<WarrantyClaim>("spGetWarrantyClaimsDropdownData",
+                   [],
+                   []);
+                return Ok(ApiResponseFactory.Success(warrantyClaims));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponseFactory.Fail(ex, "Failed to retrieve warranty claims."));
+            }
+        }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -39,10 +80,13 @@ namespace WarrantySystem.API.Controllers
             {
                 var warrantyClaim = await _repo.GetById<WarrantyClaim>(id);
                 if (warrantyClaim == null)
+                    return NotFound(ApiResponseFactory.Fail(null, "Warranty claims not found."));
+                var product = await _repo.GetById<Product>(warrantyClaim.ProductId ?? 0);
+                var dto = new WarrantyClaimDTO(warrantyClaim)
                 {
-                    return NotFound(ApiResponseFactory.Fail(null, "Warranty claim not found."));
-                }
-                return Ok(ApiResponseFactory.Success(warrantyClaim));
+                    ProductName = product!.Name
+                };
+                return Ok(ApiResponseFactory.Success(dto));
             }
             catch (Exception ex)
             {
@@ -56,6 +100,8 @@ namespace WarrantySystem.API.Controllers
             try
             {
                 warrantyClaim.CreatedDate = DateTime.Now;
+                if (warrantyClaim.ProductId == null)
+                    return BadRequest(ApiResponseFactory.Fail(null, "ProductId is required."));
                 var createdWarrantyClaim = await _repo.Insert(warrantyClaim);
                 return Ok(ApiResponseFactory.Success(createdWarrantyClaim, "Warranty claim created successfully."));
             }

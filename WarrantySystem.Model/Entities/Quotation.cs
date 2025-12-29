@@ -21,14 +21,14 @@ public partial class Quotation
 
     public string CustomerAddress { get; set; }
 
-    public int? ProductSerialId { get; set; }
-
     /// <summary>
     /// 1 = Đã gửi, 2 = Chưa gửi, 3 = Đã duyệt, 4 = Đã từ chối, 5 = Hết hạn
     /// </summary>
     public int? StatusQuotation { get; set; }
 
     public string Note { get; set; }
+
+    public DateTime? StartTime { get; set; }
 
     public DateTime? DeadLine { get; set; }
 

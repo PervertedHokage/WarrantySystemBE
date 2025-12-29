@@ -40,7 +40,7 @@ namespace WarrantySystem.API.Controllers.Issues
         {
             try
             {
-                var issues = await _repo.ProcedureToList<dynamic>("spGetIssues",
+                var issues = await _repo.ProcedureToList<IssueFullDTO>("spGetIssues",
                     new string[] { "@IssuesGroupId" },
                     new object[] { request.IssuesGroupId });
                 return Ok(ApiResponseFactory.Success(issues, "Lấy dữ liệu thành công"));
@@ -72,7 +72,7 @@ namespace WarrantySystem.API.Controllers.Issues
 
                 {
                     await _repo.Insert(dto.IssuesGroup);
-                    IssuesGroupID = dto.IssuesGroup.Id; 
+                    IssuesGroupID = dto.IssuesGroup.Id;
                 }
                 else
                 {

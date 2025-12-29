@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Xml.Linq;
 using WarrantySystem.Model.DTO;
 using WarrantySystem.Model.Entities;
 using WarrantySystem.Model.Param;
@@ -49,7 +48,19 @@ namespace WarrantySystem.API.Controllers.Products
 
             }
         }
-
+        [HttpGet("spare-parts-all")]
+        public async Task<IActionResult> GetAllSpareParts()
+        {
+            try
+            {
+                var sparePart = await _repo.GetAll<SparePart>();
+                return Ok(ApiResponseFactory.Success(sparePart, "Lấy dữ liệu thành công"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
+            }
+        }
         [HttpPost("spare-parts")]
         public async Task<IActionResult> GetListIssues([FromBody] SparePartsParam request)
         {
@@ -152,7 +163,7 @@ namespace WarrantySystem.API.Controllers.Products
                     }
                     else
                     {
-                       var group = await _repo.GetById<SparePartsGroup>(groupWithDetails.SparePartsGroup.Id);
+                        var group = await _repo.GetById<SparePartsGroup>(groupWithDetails.SparePartsGroup.Id);
                         if (group == null) continue; // an toàn
                         await _repo.Update(groupDTO);
                         groupId = group.Id;
