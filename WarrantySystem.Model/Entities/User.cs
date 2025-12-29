@@ -83,13 +83,15 @@ public partial class User
 
     public DateTime? UpdatedDate { get; set; }
 
-    public sbyte? IsAdmin { get; set; }
+    public bool? IsAdmin { get; set; }
 
-    public sbyte? StaffAltax { get; set; }
+    public bool? StaffAltax { get; set; }
 
-    public sbyte? StaffHyp { get; set; }
+    public bool? StaffHyp { get; set; }
 
-    public sbyte? StaffKnife { get; set; }
+    public bool? StaffKnife { get; set; }
 
     public string ApprovedBy { get; set; }
+
+    public bool IsDeleted { get; set; }
 }
