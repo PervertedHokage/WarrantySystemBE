@@ -5,6 +5,8 @@ using WarrantySystem.Shared.Common;
 
 namespace WarrantySystem.API.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class UserController : Controller
     {
         private IGenericRepo _repo;
