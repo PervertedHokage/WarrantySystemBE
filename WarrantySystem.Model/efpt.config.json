@@ -4,17 +4,24 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
-   "MinimumProductVersion": "2.6.1248",
+   "IrregularWords": null,
+   "MinimumProductVersion": "2.6.1301",
    "ModelNamespace": null,
    "OutputContextPath": "Context",
    "OutputPath": "Entities",
+   "PluralRules": null,
    "PreserveCasingWithRegex": true,
    "ProjectRootNamespace": "WarrantySystem.Model",
    "Schemas": null,
    "SelectedHandlebarsLanguage": 2,
    "SelectedToBeGenerated": 0,
+   "SingularRules": null,
    "T4TemplatePath": null,
    "Tables": [
+      {
+         "Name": "customer",
+         "ObjectType": 0
+      },
       {
          "Name": "form_and_function",
          "ObjectType": 0

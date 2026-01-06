@@ -14,6 +14,8 @@ public partial class warranty_systemContext : DbContext
     {
     }
 
+    public virtual DbSet<Customer> Customers { get; set; }
+
     public virtual DbSet<FormAndFunction> FormAndFunctions { get; set; }
 
     public virtual DbSet<FormAndFunctionGroup> FormAndFunctionGroups { get; set; }
@@ -56,11 +58,36 @@ public partial class warranty_systemContext : DbContext
 
     public virtual DbSet<WarrantyClaim> WarrantyClaims { get; set; }
 
+    public virtual DbSet<WarrantyClaimTracking> WarrantyClaimTrackings { get; set; }
+
+    public virtual DbSet<WorkOrder> WorkOrders { get; set; }
+
+    public virtual DbSet<WorkOrderSparePart> WorkOrderSpareParts { get; set; }
+
+    public virtual DbSet<WorkOrderStatus> WorkOrderStatuses { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
             .UseCollation("utf8mb4_0900_ai_ci")
             .HasCharSet("utf8mb4");
+
+        modelBuilder.Entity<Customer>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("customer");
+
+            entity.Property(e => e.CreatedBy).HasMaxLength(50);
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.CustomerAddress).HasMaxLength(50);
+            entity.Property(e => e.CustomerEmail).HasMaxLength(50);
+            entity.Property(e => e.CustomerName).HasMaxLength(50);
+            entity.Property(e => e.CustomerPhoneNumber).HasMaxLength(50);
+            entity.Property(e => e.IsDeleted).HasDefaultValueSql("'0'");
+            entity.Property(e => e.UpdatedBy).HasMaxLength(50);
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+        });
 
         modelBuilder.Entity<FormAndFunction>(entity =>
         {
@@ -505,6 +532,7 @@ public partial class warranty_systemContext : DbContext
 
             entity.ToTable("warranty_claims");
 
+            entity.Property(e => e.ClaimNo).HasMaxLength(20);
             entity.Property(e => e.CreatedBy).HasMaxLength(255);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             entity.Property(e => e.CustomerAddress)
@@ -558,6 +586,55 @@ public partial class warranty_systemContext : DbContext
             entity.Property(e => e.Type).HasComment("1 = không có phí, 2 = có phí");
             entity.Property(e => e.UpdatedBy).HasMaxLength(255);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<WarrantyClaimTracking>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("warranty_claim_tracking");
+
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.Note).HasColumnType("text");
+            entity.Property(e => e.StatusText)
+                .HasMaxLength(200)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
+        });
+
+        modelBuilder.Entity<WorkOrder>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("work_order");
+
+            entity.Property(e => e.Code).HasMaxLength(50);
+            entity.Property(e => e.CompletedDate).HasColumnType("datetime");
+            entity.Property(e => e.CreatedBy).HasMaxLength(50);
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.DateEnd).HasColumnType("datetime");
+            entity.Property(e => e.DateStart).HasColumnType("datetime");
+            entity.Property(e => e.Note).HasMaxLength(200);
+            entity.Property(e => e.UpdatedBy).HasMaxLength(50);
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<WorkOrderSparePart>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("work_order_spare_parts");
+
+            entity.Property(e => e.Quantity).HasMaxLength(45);
+        });
+
+        modelBuilder.Entity<WorkOrderStatus>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("work_order_status");
+
+            entity.Property(e => e.Status).HasMaxLength(50);
         });
 
         OnModelCreatingPartial(modelBuilder);
