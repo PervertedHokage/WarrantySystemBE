@@ -36,7 +36,7 @@ namespace WarrantySystem.API.Controllers.Register
             }
         }
 
-        [HttpPost("save-data")]
+        [HttpPost]
         public async Task<IActionResult> SaveEmployee([FromBody] User employee)
         {
             try

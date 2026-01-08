@@ -21,30 +21,14 @@ namespace WarrantySystem.API.Controllers.WorkOrders
             _currentUser = currentUser;
         }
 
-        public class WorkOrderParam
-        {
-            public int WorkOrderID { get; set; }
-
-        }
-        public class EmployeeParam
-        {
-            public int Status { get; set; }
-
-        }
-        public class WarrantyClaimParam
-        {
-            public int WarrantyClaimID { get; set; }
-
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> GetListWorkOrders([FromBody] WorkOrderParam request)
+        [HttpGet]
+        public async Task<IActionResult> GetListWorkOrders([FromQuery] int WorkOrderID)
         {
             try
             {
                 var work = await _repo.ProcedureToList<dynamic>("spGetWorkOrder",
                     new string[] { "@WorkOrderID" },
-                    new object[] { request.WorkOrderID });
+                    new object[] { WorkOrderID });
 
                 return Ok(ApiResponseFactory.Success(work, "Lấy dữ liệu thành công"));
 
@@ -55,14 +39,14 @@ namespace WarrantySystem.API.Controllers.WorkOrders
             }
         }
 
-        [HttpPost("warranty-claim")]
-        public async Task<IActionResult> GetWarrantyClaims([FromBody] WarrantyClaimParam request)
+        [HttpGet("warranty-claim")]
+        public async Task<IActionResult> GetWarrantyClaims([FromQuery] int WarrantyClaimID)
         {
             try
             {
                 var claim = await _repo.ProcedureToList<dynamic>("spGetWarrantyClaim",
                     new string[] { "@WarrantyClaimID" },
-                    new object[] { request.WarrantyClaimID });
+                    new object[] {  WarrantyClaimID });
 
                 return Ok(ApiResponseFactory.Success(claim, "Lấy dữ liệu thành công"));
 
@@ -73,14 +57,14 @@ namespace WarrantySystem.API.Controllers.WorkOrders
             }
         }
 
-        [HttpPost("work-order-detail")]
-        public async Task<IActionResult> GetListWorkOrderDetails([FromBody] WorkOrderParam request)
+        [HttpGet("work-order-detail")]
+        public async Task<IActionResult> GetListWorkOrderDetails([FromQuery] int WorkOrderID)
         {
             try
             {
                 var workdetail = await _repo.ProcedureToList<dynamic>("spGetWorkOrderDetail",
                     new string[] { "@WorkOrderID" },
-                    new object[] { request.WorkOrderID });
+                    new object[] { WorkOrderID });
 
 
                 return Ok(ApiResponseFactory.Success(workdetail, "Lấy dữ liệu thành công"));
@@ -91,14 +75,14 @@ namespace WarrantySystem.API.Controllers.WorkOrders
             }
         }
 
-        [HttpPost("employees")]
-        public async Task<IActionResult> GetListEmployees([FromBody] EmployeeParam request)
+        [HttpGet("employees")]
+        public async Task<IActionResult> GetListEmployees([FromQuery] int Status)
         {
             try
             {
                 var employees = await _repo.ProcedureToList<dynamic>("spGetUser",
                     new string[] { "@Status" },
-                    new object[] { request.Status });
+                    new object[] { Status });
                 return Ok(ApiResponseFactory.Success(employees, "Lấy dữ liệu thành công"));
 
             }
