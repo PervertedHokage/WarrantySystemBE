@@ -99,10 +99,26 @@ namespace WarrantySystem.API.Controllers
         {
             try
             {
-                warrantyClaim.CreatedDate = DateTime.Now;
                 if (warrantyClaim.ProductId == null)
                     return BadRequest(ApiResponseFactory.Fail(null, "ProductId is required."));
+                warrantyClaim.Id = 0;
+                warrantyClaim.CreatedDate = DateTime.Now;
+                warrantyClaim.CreatedBy = warrantyClaim.CustomerName;
+                warrantyClaim.Status = 1;
                 var createdWarrantyClaim = await _repo.Insert(warrantyClaim);
+
+                var customer = new Customer
+                {
+                    WarrantyClaimId = createdWarrantyClaim.Id,
+                    CustomerName = warrantyClaim.CustomerName,
+                    CustomerPhoneNumber = warrantyClaim.CustomerPhoneNumber,
+                    CustomerEmail = warrantyClaim.CustomerEmail,
+                    CustomerAddress = warrantyClaim.CustomerAddress,
+                    CreatedBy = warrantyClaim.CustomerName,
+                    CreatedDate = DateTime.Now
+                };
+
+                await _repo.Insert(customer);
                 return Ok(ApiResponseFactory.Success(createdWarrantyClaim, "Warranty claim created successfully."));
             }
             catch (Exception ex)

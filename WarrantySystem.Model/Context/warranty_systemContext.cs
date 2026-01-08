@@ -14,6 +14,8 @@ public partial class warranty_systemContext : DbContext
     {
     }
 
+    public virtual DbSet<Customer> Customers { get; set; }
+
     public virtual DbSet<FormAndFunction> FormAndFunctions { get; set; }
 
     public virtual DbSet<FormAndFunctionGroup> FormAndFunctionGroups { get; set; }
@@ -71,6 +73,23 @@ public partial class warranty_systemContext : DbContext
         modelBuilder
             .UseCollation("utf8mb4_0900_ai_ci")
             .HasCharSet("utf8mb4");
+
+        modelBuilder.Entity<Customer>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("customer");
+
+            entity.Property(e => e.CreatedBy).HasMaxLength(50);
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.CustomerAddress).HasMaxLength(50);
+            entity.Property(e => e.CustomerEmail).HasMaxLength(50);
+            entity.Property(e => e.CustomerName).HasMaxLength(50);
+            entity.Property(e => e.CustomerPhoneNumber).HasMaxLength(50);
+            entity.Property(e => e.IsDeleted).HasDefaultValueSql("'0'");
+            entity.Property(e => e.UpdatedBy).HasMaxLength(50);
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+        });
 
         modelBuilder.Entity<FormAndFunction>(entity =>
         {
@@ -206,6 +225,8 @@ public partial class warranty_systemContext : DbContext
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             entity.Property(e => e.DateEnd).HasColumnType("datetime");
             entity.Property(e => e.DateStart).HasColumnType("datetime");
+            entity.Property(e => e.Imei1).HasMaxLength(45);
+            entity.Property(e => e.Imei2).HasMaxLength(45);
             entity.Property(e => e.Price).HasPrecision(18, 2);
             entity.Property(e => e.Quantity).HasPrecision(10, 2);
             entity.Property(e => e.Stt).HasColumnName("STT");

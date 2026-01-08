@@ -94,6 +94,42 @@ namespace WarrantySystem.API.Controllers.Products
             }
         }
 
+        [HttpPost("save-data")]
+        public async Task<IActionResult> SaveData([FromBody] Product product)
+        {
+            try
+            {
+                var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
+                CurrentUser currentUser = ObjectMapper.GetCurrentUser(claims);
+
+                // Master
+                if (product.Id <= 0)
+
+                {
+                    await _repo.Insert(product);
+                }
+                else
+                {
+                    await _repo.Update(product);
+                }
+
+                return Ok(new
+                {
+                    status = 1,
+                    message = "Lưu thành công",
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    status = 0,
+                    message = ex.Message,
+                    error = ex.ToString()
+                });
+            }
+        }
+
 
         [HttpPost("save-data-product")]
         public async Task<IActionResult> SaveDataProduct([FromBody] sparePartGroupDTO dto)
