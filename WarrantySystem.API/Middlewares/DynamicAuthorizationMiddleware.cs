@@ -56,11 +56,12 @@ public class DynamicAuthorizationMiddleware
 
             //Check còn hạn không
             long expClaims = Convert.ToInt64(context.User.Claims.FirstOrDefault(c => c.Type == "exp")?.Value);
-            DateTime expires = DateTimeOffset.FromUnixTimeSeconds(expClaims).UtcDateTime.AddHours(+7);
+            DateTime expires = DateTimeOffset.FromUnixTimeSeconds(expClaims).UtcDateTime; //.AddHours(+7);
 
             expires = new DateTime(expires.Year, expires.Month, expires.Day, expires.Hour, expires.Minute, 0);
-            DateTime now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, 0);
-            if (now > expires)
+            //DateTime now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, 0);
+            //if (now > expires)
+            if (DateTime.UtcNow > expires)
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 await context.Response.WriteAsync("Expired");
