@@ -223,6 +223,8 @@ public partial class warranty_systemContext : DbContext
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             entity.Property(e => e.DateEnd).HasColumnType("datetime");
             entity.Property(e => e.DateStart).HasColumnType("datetime");
+            entity.Property(e => e.Imei1).HasMaxLength(45);
+            entity.Property(e => e.Imei2).HasMaxLength(45);
             entity.Property(e => e.Price).HasPrecision(18, 2);
             entity.Property(e => e.Quantity).HasPrecision(10, 2);
             entity.Property(e => e.Stt).HasColumnName("STT");

@@ -13,7 +13,6 @@ namespace WarrantySystem.API.Controllers.SalesOrder
     public class SaleOrderController : ControllerBase
     {
         private IGenericRepo _repo;
-        private static readonly SemaphoreSlim _codeGenerationLock = new SemaphoreSlim(1, 1);
 
         public SaleOrderController(IGenericRepo repo)
         {
@@ -31,8 +30,8 @@ namespace WarrantySystem.API.Controllers.SalesOrder
             try
             {
                 var order = await _repo.ProcedureToList<dynamic>("spGetOrder",
-                    new string[] { "@OrderId" },
-                    new object[] { request.OrderId });
+                    new string[] { "@OrderId", "@FromDateStart", "@ToDateStart"},
+                    new object[] { request.OrderId, request.FromDateStart, request.ToDateStart });
                 return Ok(ApiResponseFactory.Success(order, "Lấy dữ liệu thành công"));
 
             }
@@ -82,6 +81,8 @@ namespace WarrantySystem.API.Controllers.SalesOrder
                 {
                     await _repo.Insert(dto.Order);
                     OrderID = dto.Order.Id;
+
+               
                 }
                 else
                 {
@@ -118,7 +119,14 @@ namespace WarrantySystem.API.Controllers.SalesOrder
 
                         if (existing == null || itemDetailInfo.Id <= 0)
                         {
-                            await _repo.Insert(itemDetailInfo);
+                            var DetailInfo = await _repo.Insert(itemDetailInfo);
+                            var serial = new Serial
+                            {
+                                ProductSerial = DetailInfo.ProductSerial,
+                                OrderDetailInfoId = DetailInfo.Id
+                              
+                            };
+                            await _repo.Insert(serial);
                         }
                         else
                         {
@@ -127,6 +135,26 @@ namespace WarrantySystem.API.Controllers.SalesOrder
                             if (existingDetail != null && existingDetail.OrderDetailId == OrderDetailID)
                             {
                                 await _repo.Update(itemDetailInfo);
+
+                                var existingSerial = (await _repo.FindByExpression<Serial>(
+                                    x => x.OrderDetailInfoId == itemDetailInfo.Id
+                                 )).FirstOrDefault();
+
+                                if (existingSerial != null)
+                                {
+                                    existingSerial.ProductSerial = itemDetailInfo.ProductSerial;
+                                    await _repo.Update(existingSerial);
+                                }
+                                else
+                                {
+                                    // Trường hợp thiếu serial → insert bù
+                                    var newSerial = new Serial
+                                    {
+                                        OrderDetailInfoId = itemDetailInfo.Id,
+                                        ProductSerial = itemDetailInfo.ProductSerial
+                                    };
+                                    await _repo.Insert(newSerial);
+                                }
                             }
                         }
                     }

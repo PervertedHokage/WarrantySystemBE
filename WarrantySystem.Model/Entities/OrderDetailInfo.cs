@@ -11,8 +11,6 @@ public partial class OrderDetailInfo
 
     public int? OrderDetailId { get; set; }
 
-    public int? SerialId { get; set; }
-
     public string ProductSerial { get; set; }
 
     public DateTime? CreatedDate { get; set; }
