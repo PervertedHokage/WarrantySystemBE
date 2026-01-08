@@ -17,20 +17,15 @@ namespace WarrantySystem.API.Controllers.Products
         {
             _repo = repo;
         }
-        public class SerialParam
-        {
-            public int ProductId { get; set; }
 
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> GetListIssues([FromBody] SerialParam request)
+        [HttpGet]
+        public async Task<IActionResult> GetListIssues([FromQuery] int ProductID)
         {
             try
             {
                 var serial = await _repo.ProcedureToList<dynamic>("spGetSerial",
                     new string[] { "@ProductId" },
-                    new object[] { request.ProductId });
+                    new object[] { ProductID });
                 return Ok(ApiResponseFactory.Success(serial, "Lấy dữ liệu thành công"));
 
             }

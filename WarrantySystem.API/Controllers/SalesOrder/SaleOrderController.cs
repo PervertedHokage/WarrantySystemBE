@@ -18,14 +18,9 @@ namespace WarrantySystem.API.Controllers.SalesOrder
         {
             _repo = repo;
         }
-        public class AllProduct
-        {
-            public int ProductId { get; set; }
 
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> GetListOrder([FromBody] OrderSaleParam request)
+        [HttpGet]
+        public async Task<IActionResult> GetListOrder([FromQuery] OrderSaleParam request)
         {
             try
             {
@@ -41,25 +36,7 @@ namespace WarrantySystem.API.Controllers.SalesOrder
             }
         }
 
-
-        [HttpPost("product")]
-        public async Task<IActionResult> GetListProduct([FromBody] AllProduct request)
-        {
-            try
-            {
-                var product = await _repo.ProcedureToList<dynamic>("spGetProduct",
-                    new string[] { "@ProductId" },
-                    new object[] { request.ProductId });
-                return Ok(ApiResponseFactory.Success(product, "Lấy dữ liệu thành công"));
-
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
-            }
-        }
-
-        [HttpPost("save-data-sale-order")]
+        [HttpPost]
         public async Task<IActionResult> SaveData([FromBody] SaleOrderDTO dto)
         {
             try

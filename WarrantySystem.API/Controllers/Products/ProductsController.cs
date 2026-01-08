@@ -67,22 +67,6 @@ namespace WarrantySystem.API.Controllers.Products
             }
         }
 
-        [HttpGet("unit")]
-        public async Task<IActionResult> GetUnits()
-        {
-            try
-            {
-                var units = (await _repo.FindByExpression<Unit>(x => x.IsDeleted == false));
-                return Ok(ApiResponseFactory.Success(units, "Lấy dữ liệu thành công"));
-
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
-
-            }
-        }
-
         [HttpPost("save-data")]
         public async Task<IActionResult> SaveData([FromBody] Product product)
         {
