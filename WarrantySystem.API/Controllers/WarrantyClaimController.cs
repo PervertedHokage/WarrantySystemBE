@@ -101,6 +101,22 @@ namespace WarrantySystem.API.Controllers
             {
                 if (warrantyClaim.ProductId == null)
                     return BadRequest(ApiResponseFactory.Fail(null, "ProductId is required."));
+
+                var existed = await _repo.FindByExpression<WarrantyClaim>(x =>
+                (x.CustomerPhoneNumber == warrantyClaim.CustomerPhoneNumber
+                || x.CustomerEmail == warrantyClaim.CustomerEmail));
+
+                if (existed.Any(x => x.CustomerPhoneNumber == warrantyClaim.CustomerPhoneNumber))
+                {
+                    return BadRequest(ApiResponseFactory.Fail(null, "Số điện thoại đã tồn tại."));
+
+                }
+
+                if (existed.Any(x => x.CustomerEmail == warrantyClaim.CustomerEmail))
+                {
+                    return BadRequest(ApiResponseFactory.Fail(null, "Email đã tồn tại."));
+
+                }
                 warrantyClaim.Id = 0;
                 warrantyClaim.CreatedDate = DateTime.Now;
                 warrantyClaim.CreatedBy = warrantyClaim.CustomerName;
