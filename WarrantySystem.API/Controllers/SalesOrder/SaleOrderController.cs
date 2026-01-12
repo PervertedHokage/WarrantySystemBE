@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Mvc;
 using WarrantySystem.Model.DTO;
 using WarrantySystem.Model.Entities;
 using WarrantySystem.Model.Param;
@@ -24,8 +25,8 @@ namespace WarrantySystem.API.Controllers.SalesOrder
         {
             try
             {
-                var order = await _repo.ProcedureToList<dynamic>("spGetOrder",
-                    new string[] { "@OrderId", "@FromDateStart", "@ToDateStart"},
+                var order = await _repo.ProcedureToList<SaleOrderFullDTO>("spGetOrder",
+                    new string[] { "@OrderId", "@FromDateStart", "@ToDateStart" },
                     new object[] { request.OrderId, request.FromDateStart, request.ToDateStart });
                 return Ok(ApiResponseFactory.Success(order, "Lấy dữ liệu thành công"));
 
@@ -59,7 +60,7 @@ namespace WarrantySystem.API.Controllers.SalesOrder
                     await _repo.Insert(dto.Order);
                     OrderID = dto.Order.Id;
 
-               
+
                 }
                 else
                 {
@@ -101,7 +102,7 @@ namespace WarrantySystem.API.Controllers.SalesOrder
                             {
                                 ProductSerial = DetailInfo.ProductSerial,
                                 OrderDetailInfoId = DetailInfo.Id
-                              
+
                             };
                             await _repo.Insert(serial);
                         }
@@ -147,13 +148,13 @@ namespace WarrantySystem.API.Controllers.SalesOrder
                         }
                     }
                 }
-                    return Ok(new
-                    {
-                        status = 1,
-                        message = "Lưu thành công",
-                        id = OrderID,
-                    });
-                
+                return Ok(new
+                {
+                    status = 1,
+                    message = "Lưu thành công",
+                    id = OrderID,
+                });
+
             }
             catch (Exception ex)
             {
@@ -172,7 +173,7 @@ namespace WarrantySystem.API.Controllers.SalesOrder
 
                 foreach (var detailId in ids)
                 {
-       
+
                     var orderDetail = await _repo.GetById<OrderDetail>(detailId);
                     if (orderDetail == null) continue;
 
@@ -202,6 +203,61 @@ namespace WarrantySystem.API.Controllers.SalesOrder
             }
         }
 
+        [HttpGet("export-excel")]
+        public async Task<IActionResult> ExportOrderExcel([FromQuery] OrderSaleParam request)
+        {
+            try
+            {
+                var orders = await _repo.ProcedureToList<SaleOrderFullDTO>("spGetOrder",
+                    new string[] { "@OrderId", "@FromDateStart", "@ToDateStart" },
+                    new object[] { request.OrderId, request.FromDateStart, request.ToDateStart });
 
+                using var workbook = new XLWorkbook();
+                var worksheet = workbook.Worksheets.Add("Orders");
+
+                worksheet.Cell(1, 1).Value = "Code";
+                worksheet.Cell(1, 2).Value = "Customer Name";
+                worksheet.Cell(1, 3).Value = "Phone";
+                worksheet.Cell(1, 4).Value = "Product";
+                worksheet.Cell(1, 5).Value = "Imei1";
+                worksheet.Cell(1, 6).Value = "Imei2";
+                worksheet.Cell(1, 7).Value = "Quantity";
+                worksheet.Cell(1, 8).Value = "Price";
+                worksheet.Cell(1, 9).Value = "Date Start";
+                worksheet.Cell(1, 10).Value = "Date End";
+
+                int row = 2;
+                foreach (var item in orders)
+                {
+                    worksheet.Cell(row, 1).Value = item.Code;
+                    worksheet.Cell(row, 2).Value = item.CustomerName;
+                    worksheet.Cell(row, 3).Value = item.CustomerPhoneNumber;
+                    worksheet.Cell(row, 4).Value = item.ProductName;
+                    worksheet.Cell(row, 5).Value = item.Imei1;
+                    worksheet.Cell(row, 6).Value = item.Imei2;
+                    worksheet.Cell(row, 7).Value = item.Quantity;
+                    worksheet.Cell(row, 8).Value = item.Price;
+                    worksheet.Cell(row, 9).Value = item.DateStart;
+                    worksheet.Cell(row, 10).Value = item.DateEnd;
+                    row++;
+                }
+
+                worksheet.Columns().AdjustToContents();
+
+                using var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+
+                return File(
+                    stream.ToArray(),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    $"SaleOrders_{DateTime.Now:yyyyMMddHHmmss}.xlsx"
+                );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
+            }
+        }
     }
 }
