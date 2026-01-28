@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WarrantySystem.Model.DTO;
 using WarrantySystem.Model.Entities;
 using WarrantySystem.Repository.IRepositories;
 using WarrantySystem.Shared.Common;
+using System.IO;
 
 namespace WarrantySystem.API.Controllers.WarrantyClaims
 {
@@ -173,6 +175,85 @@ namespace WarrantySystem.API.Controllers.WarrantyClaims
             {
                 return BadRequest(ApiResponseFactory.Fail(ex, "Failed to delete warranty claim."));
             }
+        }
+
+        [HttpGet("export-excel")]
+        public async Task<IActionResult> ExportExcel(
+            [FromQuery(Name = "phone-number")] string? phoneNumber,
+            [FromQuery(Name = "email")] string? email,
+            [FromQuery(Name = "claim-no")] string? claimNo,
+            [FromQuery(Name = "from-date")] DateTime fromDate,
+            [FromQuery(Name = "to-date")] DateTime toDate,
+            [FromQuery(Name = "status")] int status)
+        {
+            try
+            {
+                var fromDateStart = fromDate.Date;
+                var toDateEnd = toDate.Date.AddDays(1).AddMilliseconds(-1);
+                var warrantyClaims = await _repo.ProcedureToList<WarrantyClaimDTO>("spGetWarrantyClaims",
+                    ["p_PhoneNumber", "p_Email", "p_ClaimNo", "p_FromDate", "p_ToDate", "p_Status"],
+                    [phoneNumber, email, claimNo, fromDateStart, toDateEnd, status]);
+
+                using var workbook = new XLWorkbook();
+                var worksheet = workbook.Worksheets.Add("WarrantyClaims");
+
+                worksheet.Cell(1, 1).Value = "Claim No";
+                worksheet.Cell(1, 2).Value = "Created Date";
+                worksheet.Cell(1, 3).Value = "Customer Name";
+                worksheet.Cell(1, 4).Value = "Phone Number";
+                worksheet.Cell(1, 5).Value = "Email";
+                worksheet.Cell(1, 6).Value = "Address";
+                worksheet.Cell(1, 7).Value = "Product Name";
+                worksheet.Cell(1, 8).Value = "Serial Number";
+                worksheet.Cell(1, 9).Value = "Status";
+                worksheet.Cell(1, 10).Value = "Note";
+
+                int row = 2;
+                foreach (var item in warrantyClaims)
+                {
+                    worksheet.Cell(row, 1).Value = item.ClaimNo;
+                    worksheet.Cell(row, 2).Value = item.CreatedDate?.ToString("dd/MM/yyyy HH:mm:ss");
+                    worksheet.Cell(row, 3).Value = item.CustomerName;
+                    worksheet.Cell(row, 4).Value = item.CustomerPhoneNumber;
+                    worksheet.Cell(row, 5).Value = item.CustomerEmail;
+                    worksheet.Cell(row, 6).Value = item.CustomerAddress;
+                    worksheet.Cell(row, 7).Value = item.ProductName;
+                    worksheet.Cell(row, 8).Value = item.SerialNumber;
+                    worksheet.Cell(row, 9).Value = GetStatusText(item.Status ?? 0);
+                    worksheet.Cell(row, 10).Value = item.Note;
+                    row++;
+                }
+
+                worksheet.Columns().AdjustToContents();
+
+                using var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+
+                return File(
+                    stream.ToArray(),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    $"WarrantyClaims_{DateTime.Now:yyyyMMddHHmmss}.xlsx"
+                );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponseFactory.Fail(ex, "Failed to export warranty claims to Excel."));
+            }
+        }
+
+        private string GetStatusText(int status)
+        {
+            return status switch
+            {
+                1 => "Tiếp nhận thông tin",
+                2 => "Xác minh thông tin",
+                3 => "Chẩn đoán sơ bộ",
+                4 => "Báo giá",
+                5 => "Sửa chữa/bảo hành",
+                6 => "Hoàn trả",
+                _ => "Không xác định"
+            };
         }
     }
 }

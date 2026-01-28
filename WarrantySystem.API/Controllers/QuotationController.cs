@@ -5,6 +5,8 @@ using WarrantySystem.Model.DTO;
 using WarrantySystem.Model.Entities;
 using WarrantySystem.Repository.IRepositories;
 using WarrantySystem.Shared.Common;
+using ClosedXML.Excel;
+using System.IO;
 
 namespace WarrantySystem.API.Controllers
 {
@@ -165,6 +167,70 @@ namespace WarrantySystem.API.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ApiResponseFactory.Fail(ex, "Failed to update quotation details."));
+            }
+        }
+
+        [HttpGet("export-excel")]
+        public async Task<IActionResult> ExportExcel(
+            [FromQuery(Name = "from-date")] DateTime fromDate,
+            [FromQuery(Name = "to-date")] DateTime toDate,
+            [FromQuery(Name = "claim-no")] string? claimNo)
+        {
+            try
+            {
+                var fromDateStart = fromDate.Date;
+                var toDateEnd = toDate.Date.AddDays(1).AddMilliseconds(-1);
+                var quotations = await _repo.ProcedureToList<QuotationDTO>("spGetQuotations",
+                    ["p_FromDate", "p_ToDate", "p_ClaimNo"],
+                    [fromDateStart, toDateEnd, claimNo]);
+
+                using var workbook = new XLWorkbook();
+                var worksheet = workbook.Worksheets.Add("Quotations");
+
+                worksheet.Cell(1, 1).Value = "Quotation Number";
+                worksheet.Cell(1, 2).Value = "Claim No";
+                worksheet.Cell(1, 3).Value = "Created Date";
+                worksheet.Cell(1, 4).Value = "Customer Name";
+                worksheet.Cell(1, 5).Value = "Phone Number";
+                worksheet.Cell(1, 6).Value = "Email";
+                worksheet.Cell(1, 7).Value = "Address";
+                worksheet.Cell(1, 8).Value = "Product Name";
+                worksheet.Cell(1, 9).Value = "Status Quotation";
+                worksheet.Cell(1, 10).Value = "Status Reply";
+                worksheet.Cell(1, 11).Value = "Note";
+
+                int row = 2;
+                foreach (var item in quotations)
+                {
+                    worksheet.Cell(row, 1).Value = item.QuotationNumber;
+                    worksheet.Cell(row, 2).Value = item.ClaimNo;
+                    worksheet.Cell(row, 3).Value = item.CreatedDate?.ToString("dd/MM/yyyy HH:mm:ss");
+                    worksheet.Cell(row, 4).Value = item.CustomerName;
+                    worksheet.Cell(row, 5).Value = item.CustomerPhoneNumber;
+                    worksheet.Cell(row, 6).Value = item.CustomerEmail;
+                    worksheet.Cell(row, 7).Value = item.CustomerAddress;
+                    worksheet.Cell(row, 8).Value = item.ProductName;
+                    worksheet.Cell(row, 9).Value = item.StatusQuotationText;
+                    worksheet.Cell(row, 10).Value = item.StatusReplyText;
+                    worksheet.Cell(row, 11).Value = item.Note;
+                    row++;
+                }
+
+                worksheet.Columns().AdjustToContents();
+
+                using var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+
+                return File(
+                    stream.ToArray(),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    $"Quotations_{DateTime.Now:yyyyMMddHHmmss}.xlsx"
+                );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponseFactory.Fail(ex, "Failed to export quotations to Excel."));
             }
         }
     }
