@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WarrantySystem.Model.DTO;
 using WarrantySystem.Model.Entities;
 using WarrantySystem.Model.Param;
@@ -7,6 +8,7 @@ using WarrantySystem.Shared.Common;
 
 namespace WarrantySystem.API.Controllers.Issues
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class IssuesController : ControllerBase
@@ -18,7 +20,6 @@ namespace WarrantySystem.API.Controllers.Issues
             _repo = repo;
         }
 
-
         [HttpGet]
         public async Task<IActionResult> GetIssues()
         {
@@ -26,12 +27,10 @@ namespace WarrantySystem.API.Controllers.Issues
             {
                 var issues = (await _repo.FindByExpression<IssuesGroup>(x => x.IsDeleted == false));
                 return Ok(ApiResponseFactory.Success(issues, "Lấy dữ liệu thành công"));
-
             }
             catch (Exception ex)
             {
                 return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
-
             }
         }
 
@@ -44,7 +43,6 @@ namespace WarrantySystem.API.Controllers.Issues
                     new string[] { "@IssuesGroupId" },
                     new object[] { request.IssuesGroupId });
                 return Ok(ApiResponseFactory.Success(issues, "Lấy dữ liệu thành công"));
-
             }
             catch (Exception ex)
             {
@@ -92,7 +90,6 @@ namespace WarrantySystem.API.Controllers.Issues
                         {
                             await _repo.Insert(itemIssues);
                         }
-
                         else
                             await _repo.Update(itemIssues);
                     }
@@ -131,7 +128,6 @@ namespace WarrantySystem.API.Controllers.Issues
                     return BadRequest(ApiResponseFactory.Fail(null, "Vui lòng chọn lỗi để xóa"));
                 foreach (var item in ids)
                 {
-
                     var issues = await _repo.GetById<IssuesGroup>(item);
                     //if (work.UsersId != currentUser.EmployeeID)
                     //{
@@ -139,7 +135,6 @@ namespace WarrantySystem.API.Controllers.Issues
                     //}
                     issues.IsDeleted = true;
                     await _repo.Update(issues);
-
                 }
                 return Ok(ApiResponseFactory.Success(ids, "Xóa thành công"));
             }
@@ -148,7 +143,5 @@ namespace WarrantySystem.API.Controllers.Issues
                 return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
             }
         }
-
-
     }
 }

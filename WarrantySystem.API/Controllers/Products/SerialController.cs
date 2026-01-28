@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Xml.Linq;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WarrantySystem.Model.Entities;
-using WarrantySystem.Model.Param;
 using WarrantySystem.Repository.IRepositories;
 using WarrantySystem.Shared.Common;
 
 namespace WarrantySystem.API.Controllers.Products
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class SerialController : ControllerBase
@@ -27,7 +27,6 @@ namespace WarrantySystem.API.Controllers.Products
                     new string[] { "@ProductId" },
                     new object[] { ProductID });
                 return Ok(ApiResponseFactory.Success(serial, "Lấy dữ liệu thành công"));
-
             }
             catch (Exception ex)
             {
@@ -35,14 +34,13 @@ namespace WarrantySystem.API.Controllers.Products
             }
         }
 
-
         [HttpPost("save-serial")]
         public async Task<IActionResult> SaveData([FromBody] Serial serial)
         {
             try
             {
                 // Check trùng mã kho
-    
+
                 var model = (await _repo.FindByExpression<Serial>(x => x.ProductSerial == serial.ProductSerial
                            && x.Id != serial.Id)); // loại trừ chính nó khi update
                 if (model.Any())
@@ -87,11 +85,9 @@ namespace WarrantySystem.API.Controllers.Products
                     return BadRequest(ApiResponseFactory.Fail(null, "Vui lòng chọn yccv để xóa"));
                 foreach (var item in ids)
                 {
-
                     var serial = await _repo.GetById<Serial>(item);
                     serial.IsDeleted = true;
                     await _repo.Update(serial);
-
                 }
                 return Ok(ApiResponseFactory.Success(ids, "Xóa thành công"));
             }
@@ -100,7 +96,5 @@ namespace WarrantySystem.API.Controllers.Products
                 return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
             }
         }
-
-
     }
 }

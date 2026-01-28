@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WarrantySystem.Model.Entities;
 using WarrantySystem.Repository.IRepositories;
 using WarrantySystem.Shared.Common;
-using static WarrantySystem.API.Controllers.WorkOrders.WorkOrderController;
 
 namespace WarrantySystem.API.Controllers.Register
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-
     public class RegisterController : ControllerBase
     {
         private IGenericRepo _repo;
@@ -17,6 +17,7 @@ namespace WarrantySystem.API.Controllers.Register
         {
             _repo = repo;
         }
+
         [HttpGet]
         public async Task<IActionResult> GetListUsers([FromQuery] int? Status)
         {
@@ -44,10 +45,9 @@ namespace WarrantySystem.API.Controllers.Register
                 string password = MaHoaMD5.EncryptPassword(employee.PasswordHash ?? "");
                 employee.PasswordHash = password;
                 if (employee.Id <= 0)
-                { 
-                    
-                    await _repo.Insert(employee); }
-
+                {
+                    await _repo.Insert(employee);
+                }
                 else await _repo.Update(employee);
 
                 return Ok(ApiResponseFactory.Success(employee, ""));
@@ -56,8 +56,6 @@ namespace WarrantySystem.API.Controllers.Register
             {
                 return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
             }
-
         }
-
     }
 }

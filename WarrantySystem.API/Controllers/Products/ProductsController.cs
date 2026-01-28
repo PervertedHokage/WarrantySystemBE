@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WarrantySystem.Model.DTO;
 using WarrantySystem.Model.Entities;
 using WarrantySystem.Model.Param;
@@ -7,6 +8,7 @@ using WarrantySystem.Shared.Common;
 
 namespace WarrantySystem.API.Controllers.Products
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
@@ -29,7 +31,6 @@ namespace WarrantySystem.API.Controllers.Products
             catch (Exception ex)
             {
                 return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
-
             }
         }
 
@@ -40,14 +41,13 @@ namespace WarrantySystem.API.Controllers.Products
             {
                 var data = (await _repo.FindByExpression<SparePartsGroup>(x => x.IsDeleted == false));
                 return Ok(ApiResponseFactory.Success(data, "Lấy dữ liệu thành công"));
-
             }
             catch (Exception ex)
             {
                 return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
-
             }
         }
+
         [HttpGet("spare-parts-all")]
         public async Task<IActionResult> GetAllSpareParts()
         {
@@ -61,6 +61,7 @@ namespace WarrantySystem.API.Controllers.Products
                 return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
             }
         }
+
         [HttpPost("spare-parts")]
         public async Task<IActionResult> GetListIssues([FromBody] SparePartsParam request)
         {
@@ -70,7 +71,6 @@ namespace WarrantySystem.API.Controllers.Products
                     new string[] { "@ProductId" },
                     new object[] { request.ProductId });
                 return Ok(ApiResponseFactory.Success(sparePart, "Lấy dữ liệu thành công"));
-
             }
             catch (Exception ex)
             {
@@ -113,7 +113,6 @@ namespace WarrantySystem.API.Controllers.Products
                 });
             }
         }
-
 
         [HttpPost("save-data-product")]
         public async Task<IActionResult> SaveDataProduct([FromBody] sparePartGroupDTO dto)
@@ -168,7 +167,6 @@ namespace WarrantySystem.API.Controllers.Products
                         }
                     }
                 }
-
 
                 foreach (var groupWithDetails in dto.SparePartsGroups)
                 {
@@ -255,7 +253,6 @@ namespace WarrantySystem.API.Controllers.Products
                     return BadRequest(ApiResponseFactory.Fail(null, "Vui lòng chọn sản phẩm để xóa"));
                 foreach (var item in ids)
                 {
-
                     var product = await _repo.GetById<Product>(item);
                     //if (work.UsersId != currentUser.EmployeeID)
                     //{
@@ -263,7 +260,6 @@ namespace WarrantySystem.API.Controllers.Products
                     //}
                     product.IsDeleted = true;
                     await _repo.Update(product);
-
                 }
                 return Ok(ApiResponseFactory.Success(ids, "Xóa thành công"));
             }

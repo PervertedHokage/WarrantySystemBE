@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WarrantySystem.Model.Entities;
 using WarrantySystem.Repository.IRepositories;
 using WarrantySystem.Shared.Common;
 
-namespace WarrantySystem.API.Controllers
+namespace WarrantySystem.API.Controllers.WarrantyClaims
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class WarrantyClaimTrackingController : Controller

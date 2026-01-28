@@ -28,4 +28,6 @@ public partial class Customer
     public DateTime? UpdatedDate { get; set; }
 
     public bool? IsDeleted { get; set; }
+
+    public string Code { get; set; }
 }

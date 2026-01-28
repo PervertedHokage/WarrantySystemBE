@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WarrantySystem.Model.DTO;
 using WarrantySystem.Model.Entities;
 using WarrantySystem.Repository.IRepositories;
 using WarrantySystem.Shared.Common;
 
-namespace WarrantySystem.API.Controllers
+namespace WarrantySystem.API.Controllers.WarrantyClaims
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class WarrantyClaimController : Controller
@@ -34,6 +36,7 @@ namespace WarrantySystem.API.Controllers
                 return BadRequest(ApiResponseFactory.Fail(ex, "Failed to retrieve warranty claims."));
             }
         }
+
         [HttpGet("filter")]
         public async Task<IActionResult> GetDataAsAdmin(
             [FromQuery(Name = "phone-number")] string? phoneNumber,
@@ -58,12 +61,13 @@ namespace WarrantySystem.API.Controllers
                 return BadRequest(ApiResponseFactory.Fail(ex, "Failed to retrieve warranty claims."));
             }
         }
+
         [HttpGet("info")]
         public async Task<IActionResult> GetAllDataAsAdmin()
         {
             try
             {
-                var warrantyClaims = await _repo.ProcedureToList<WarrantyClaim>("spGetWarrantyClaimsDropdownData",
+                var warrantyClaims = await _repo.ProcedureToList<WarrantyClaimDTO>("spGetWarrantyClaimsDropdownData",
                    [],
                    []);
                 return Ok(ApiResponseFactory.Success(warrantyClaims));
@@ -73,6 +77,7 @@ namespace WarrantySystem.API.Controllers
                 return BadRequest(ApiResponseFactory.Fail(ex, "Failed to retrieve warranty claims."));
             }
         }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {

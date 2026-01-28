@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WarrantySystem.Model.DTO;
 using WarrantySystem.Model.Entities;
@@ -8,9 +9,9 @@ using WarrantySystem.Shared.Common;
 
 namespace WarrantySystem.API.Controllers.SalesOrder
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-
     public class SaleOrderController : ControllerBase
     {
         private IGenericRepo _repo;
@@ -29,7 +30,6 @@ namespace WarrantySystem.API.Controllers.SalesOrder
                     new string[] { "@OrderId", "@FromDateStart", "@ToDateStart" },
                     new object[] { request.OrderId, request.FromDateStart, request.ToDateStart });
                 return Ok(ApiResponseFactory.Success(order, "Lấy dữ liệu thành công"));
-
             }
             catch (Exception ex)
             {
@@ -59,8 +59,6 @@ namespace WarrantySystem.API.Controllers.SalesOrder
                 {
                     await _repo.Insert(dto.Order);
                     OrderID = dto.Order.Id;
-
-
                 }
                 else
                 {
@@ -92,7 +90,6 @@ namespace WarrantySystem.API.Controllers.SalesOrder
                     {
                         itemDetailInfo.OrderDetailId = OrderDetailID;
 
-
                         var existing = (await _repo.FindByExpression<OrderDetailInfo>(x => x.OrderDetailId == OrderDetailID && x.Id == itemDetailInfo.Id));
 
                         if (existing == null || itemDetailInfo.Id <= 0)
@@ -102,7 +99,6 @@ namespace WarrantySystem.API.Controllers.SalesOrder
                             {
                                 ProductSerial = DetailInfo.ProductSerial,
                                 OrderDetailInfoId = DetailInfo.Id
-
                             };
                             await _repo.Insert(serial);
                         }
@@ -154,12 +150,10 @@ namespace WarrantySystem.API.Controllers.SalesOrder
                     message = "Lưu thành công",
                     id = OrderID,
                 });
-
             }
             catch (Exception ex)
             {
                 return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
-
             }
         }
 
@@ -173,7 +167,6 @@ namespace WarrantySystem.API.Controllers.SalesOrder
 
                 foreach (var detailId in ids)
                 {
-
                     var orderDetail = await _repo.GetById<OrderDetail>(detailId);
                     if (orderDetail == null) continue;
 

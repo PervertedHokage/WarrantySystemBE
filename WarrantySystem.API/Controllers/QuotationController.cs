@@ -35,6 +35,7 @@ namespace WarrantySystem.API.Controllers
                 return BadRequest(ApiResponseFactory.Fail(ex, "Failed to retrieve quotations."));
             }
         }
+
         [HttpGet("filter")]
         public async Task<IActionResult> GetDataAsAdmin(
         [FromQuery(Name = "from-date")] DateTime fromDate,
@@ -56,6 +57,7 @@ namespace WarrantySystem.API.Controllers
                 return BadRequest(ApiResponseFactory.Fail(ex, "Failed to retrieve warranty claims."));
             }
         }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -132,12 +134,14 @@ namespace WarrantySystem.API.Controllers
                 return BadRequest(ApiResponseFactory.Fail(ex, "Failed to delete quotation."));
             }
         }
+
         [HttpGet("details/{quotationId}")]
         public async Task<IActionResult> GetDetails(int quotationId)
         {
             try
             {
-                var details = await _repo.FindByExpression<QuotationDetail>(d => d.QuotationId == quotationId);
+                var details = await _repo.ProcedureToList<QuotationDetailDTO>("spGetQuotationDetails",
+                    ["p_QuotationId"], [quotationId]);
                 return Ok(ApiResponseFactory.Success(details));
             }
             catch (Exception ex)
@@ -145,6 +149,7 @@ namespace WarrantySystem.API.Controllers
                 return BadRequest(ApiResponseFactory.Fail(ex, "Failed to delete quotation."));
             }
         }
+
         [HttpPost("details")]
         public async Task<IActionResult> UpdateDetails([FromBody] QuotationDetail[] data)
         {

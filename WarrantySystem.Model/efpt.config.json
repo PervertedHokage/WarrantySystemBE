@@ -4,7 +4,6 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
-   "IrregularWords": null,
    "MinimumProductVersion": "2.6.1301",
    "ModelNamespace": null,
    "OutputContextPath": "Context",
@@ -69,6 +68,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "response_history",
+         "ObjectType": 0
+      },
+      {
          "Name": "roles",
          "ObjectType": 0
       },
@@ -106,6 +109,10 @@
       },
       {
          "Name": "warranty_claim_tracking",
+         "ObjectType": 0
+      },
+      {
+         "Name": "warranty_claim_used_spare_parts",
          "ObjectType": 0
       },
       {

@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WarrantySystem.Model.Entities;
 using WarrantySystem.Repository.IRepositories;
 using WarrantySystem.Shared.Common;
 
 namespace WarrantySystem.API.Controllers.Products
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UnitController : ControllerBase
@@ -23,12 +25,10 @@ namespace WarrantySystem.API.Controllers.Products
             {
                 var units = (await _repo.FindByExpression<Unit>(x => x.IsDeleted == false));
                 return Ok(ApiResponseFactory.Success(units, "Lấy dữ liệu thành công"));
-
             }
             catch (Exception ex)
             {
                 return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
-
             }
         }
 
@@ -82,11 +82,9 @@ namespace WarrantySystem.API.Controllers.Products
                     return BadRequest(ApiResponseFactory.Fail(null, "Vui lòng chọn yccv để xóa"));
                 foreach (var item in ids)
                 {
-
                     var unit = await _repo.GetById<Unit>(item);
                     unit.IsDeleted = true;
                     await _repo.Update(unit);
-
                 }
                 return Ok(ApiResponseFactory.Success(ids, "Xóa thành công"));
             }
@@ -95,6 +93,5 @@ namespace WarrantySystem.API.Controllers.Products
                 return BadRequest(ApiResponseFactory.Fail(ex, ex.Message));
             }
         }
-
     }
 }

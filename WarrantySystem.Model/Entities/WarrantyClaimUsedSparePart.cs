@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace WarrantySystem.Model.Entities;
 
-public partial class QuotationDetail
+public partial class WarrantyClaimUsedSparePart
 {
     public int Id { get; set; }
 
-    public int? QuotationId { get; set; }
+    public int? WarrantyClaimId { get; set; }
 
     public int? SparePartId { get; set; }
 
@@ -17,7 +17,7 @@ public partial class QuotationDetail
 
     public decimal? Quantity { get; set; }
 
-    public decimal? Price { get; set; }
+    public string Note { get; set; }
 
     public bool? IsDeleted { get; set; }
 }

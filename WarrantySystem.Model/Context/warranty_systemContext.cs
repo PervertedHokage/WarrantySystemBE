@@ -40,6 +40,8 @@ public partial class warranty_systemContext : DbContext
 
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
+    public virtual DbSet<ResponseHistory> ResponseHistories { get; set; }
+
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Serial> Serials { get; set; }
@@ -62,6 +64,8 @@ public partial class warranty_systemContext : DbContext
 
     public virtual DbSet<WarrantyClaimTracking> WarrantyClaimTrackings { get; set; }
 
+    public virtual DbSet<WarrantyClaimUsedSparePart> WarrantyClaimUsedSpareParts { get; set; }
+
     public virtual DbSet<WorkOrder> WorkOrders { get; set; }
 
     public virtual DbSet<WorkOrderSparePart> WorkOrderSpareParts { get; set; }
@@ -80,6 +84,7 @@ public partial class warranty_systemContext : DbContext
 
             entity.ToTable("customer");
 
+            entity.Property(e => e.Code).HasMaxLength(45);
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             entity.Property(e => e.CustomerAddress).HasMaxLength(50);
@@ -282,10 +287,7 @@ public partial class warranty_systemContext : DbContext
                 .HasCharSet("utf8mb3");
             entity.Property(e => e.CreatedBy).HasMaxLength(255);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
-            entity.Property(e => e.Description)
-                .HasMaxLength(200)
-                .UseCollation("utf8mb3_general_ci")
-                .HasCharSet("utf8mb3");
+            entity.Property(e => e.Description).HasMaxLength(2000);
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .UseCollation("utf8mb3_general_ci")
@@ -353,6 +355,22 @@ public partial class warranty_systemContext : DbContext
             entity.Property(e => e.Token)
                 .IsRequired()
                 .HasMaxLength(200);
+            entity.Property(e => e.UpdatedBy).HasMaxLength(255);
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<ResponseHistory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("response_history");
+
+            entity.Property(e => e.CreatedBy).HasMaxLength(255);
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.Note).HasColumnType("text");
+            entity.Property(e => e.ResponseDate).HasColumnType("datetime");
+            entity.Property(e => e.ResponseText).HasColumnType("text");
+            entity.Property(e => e.Status).HasComment("1 = Chờ xử lý, 2 = Đang xử lý, 3 = Đã giải quyết, 4 = Đã đóng");
             entity.Property(e => e.UpdatedBy).HasMaxLength(255);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
         });
@@ -599,7 +617,9 @@ public partial class warranty_systemContext : DbContext
                 .HasMaxLength(50)
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
-            entity.Property(e => e.Status).HasDefaultValueSql("'1'");
+            entity.Property(e => e.Status)
+                .HasDefaultValueSql("'1'")
+                .HasComment("1 = Tiếp nhận thông tin, 2 = Xác minh thông tin, 3 = Chuẩn đoán sơ bộ, 4 = Báo giá, 5 = Sửa chữa/bảo hành, 6 = Hoàn trả");
             entity.Property(e => e.Transporter)
                 .HasMaxLength(50)
                 .HasComment("Công ty vận chuyển")
@@ -622,6 +642,18 @@ public partial class warranty_systemContext : DbContext
                 .HasMaxLength(200)
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
+        });
+
+        modelBuilder.Entity<WarrantyClaimUsedSparePart>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("warranty_claim_used_spare_parts");
+
+            entity.HasIndex(e => e.Id, "Id_UNIQUE").IsUnique();
+
+            entity.Property(e => e.Note).HasColumnType("text");
+            entity.Property(e => e.Quantity).HasPrecision(18, 2);
         });
 
         modelBuilder.Entity<WorkOrder>(entity =>
