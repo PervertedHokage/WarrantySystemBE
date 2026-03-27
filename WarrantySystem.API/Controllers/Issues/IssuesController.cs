@@ -34,6 +34,7 @@ namespace WarrantySystem.API.Controllers.Issues
             }
         }
 
+        [AllowAnonymous]
         [HttpPost("issues")]
         public async Task<IActionResult> GetListIssues([FromBody] IssuesParam request)
         {

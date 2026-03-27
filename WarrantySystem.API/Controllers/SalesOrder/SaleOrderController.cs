@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WarrantySystem.Model.DTO;
@@ -27,8 +27,8 @@ namespace WarrantySystem.API.Controllers.SalesOrder
             try
             {
                 var order = await _repo.ProcedureToList<SaleOrderFullDTO>("spGetOrder",
-                    new string[] { "@OrderId", "@FromDateStart", "@ToDateStart" },
-                    new object[] { request.OrderId, request.FromDateStart, request.ToDateStart });
+                    ["@OrderId", "@FromDateStart", "@ToDateStart"],
+                    [request.OrderId, request.FromDateStart, request.ToDateStart]);
                 return Ok(ApiResponseFactory.Success(order, "Lấy dữ liệu thành công"));
             }
             catch (Exception ex)
@@ -90,17 +90,24 @@ namespace WarrantySystem.API.Controllers.SalesOrder
                     {
                         itemDetailInfo.OrderDetailId = OrderDetailID;
 
-                        var existing = (await _repo.FindByExpression<OrderDetailInfo>(x => x.OrderDetailId == OrderDetailID && x.Id == itemDetailInfo.Id));
+                        var existing = (await _repo.FindByExpression<OrderDetailInfo>(x => x.OrderDetailId == OrderDetailID && x.Id == itemDetailInfo.Id)).FirstOrDefault();
 
                         if (existing == null || itemDetailInfo.Id <= 0)
                         {
-                            var DetailInfo = await _repo.Insert(itemDetailInfo);
-                            var serial = new Serial
+                            // Find or create Serial
+                            var serial = (await _repo.FindByExpression<Serial>(x => x.ProductSerial == itemDetailInfo.ProductSerial && x.ProductId == groupDTO.ProductId)).FirstOrDefault();
+                            if (serial == null)
                             {
-                                ProductSerial = DetailInfo.ProductSerial,
-                                OrderDetailInfoId = DetailInfo.Id
-                            };
-                            await _repo.Insert(serial);
+                                serial = new Serial
+                                {
+                                    ProductSerial = itemDetailInfo.ProductSerial,
+                                    ProductId = groupDTO.ProductId
+                                };
+                                await _repo.Insert(serial);
+                            }
+                            
+                            itemDetailInfo.SerialId = serial.Id;
+                            await _repo.Insert(itemDetailInfo);
                         }
                         else
                         {
@@ -108,27 +115,20 @@ namespace WarrantySystem.API.Controllers.SalesOrder
                             var existingDetail = await _repo.GetById<OrderDetailInfo>(itemDetailInfo.Id);
                             if (existingDetail != null && existingDetail.OrderDetailId == OrderDetailID)
                             {
-                                await _repo.Update(itemDetailInfo);
-
-                                var existingSerial = (await _repo.FindByExpression<Serial>(
-                                    x => x.OrderDetailInfoId == itemDetailInfo.Id
-                                 )).FirstOrDefault();
-
-                                if (existingSerial != null)
+                                // Find or create Serial for update
+                                var serial = (await _repo.FindByExpression<Serial>(x => x.ProductSerial == itemDetailInfo.ProductSerial && x.ProductId == groupDTO.ProductId)).FirstOrDefault();
+                                if (serial == null)
                                 {
-                                    existingSerial.ProductSerial = itemDetailInfo.ProductSerial;
-                                    await _repo.Update(existingSerial);
-                                }
-                                else
-                                {
-                                    // Trường hợp thiếu serial → insert bù
-                                    var newSerial = new Serial
+                                    serial = new Serial
                                     {
-                                        OrderDetailInfoId = itemDetailInfo.Id,
-                                        ProductSerial = itemDetailInfo.ProductSerial
+                                        ProductSerial = itemDetailInfo.ProductSerial,
+                                        ProductId = groupDTO.ProductId
                                     };
-                                    await _repo.Insert(newSerial);
+                                    await _repo.Insert(serial);
                                 }
+                                
+                                itemDetailInfo.SerialId = serial.Id;
+                                await _repo.Update(itemDetailInfo);
                             }
                         }
                     }

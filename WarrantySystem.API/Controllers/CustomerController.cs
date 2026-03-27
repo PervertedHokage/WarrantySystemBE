@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WarrantySystem.Model.Entities;
 using WarrantySystem.Repository.IRepositories;
 using WarrantySystem.Shared.Common;
 
@@ -22,11 +23,7 @@ namespace WarrantySystem.API.Controllers
         {
             try
             {
-                var work = await _repo.ProcedureToList<dynamic>(
-                    "spGetCustomer",
-                    Array.Empty<string>(),
-                    Array.Empty<object>()
-                );
+                var work = await _repo.GetAll<Customer>();
 
                 return Ok(ApiResponseFactory.Success(work, "Lấy dữ liệu thành công"));
             }

@@ -34,8 +34,4 @@ public partial class OrderDetail
     public string Code { get; set; }
 
     public decimal? Price { get; set; }
-
-    public string Imei1 { get; set; }
-
-    public string Imei2 { get; set; }
 }

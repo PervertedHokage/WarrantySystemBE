@@ -21,6 +21,7 @@ namespace WarrantySystem.API.Controllers.Products
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetProducts()
         {
             try

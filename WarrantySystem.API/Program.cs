@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens; // Add this using directive
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MySqlConnector;
 using System.Data;
-using System.Text; // Add this using directive
+using System.Text;
 using WarrantySystem.API.Middlewares;
 using WarrantySystem.Model.Context;
 using WarrantySystem.Model.DTO;

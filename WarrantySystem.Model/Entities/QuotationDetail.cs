@@ -13,8 +13,6 @@ public partial class QuotationDetail
 
     public int? SparePartId { get; set; }
 
-    public int? UnitId { get; set; }
-
     public decimal? Quantity { get; set; }
 
     public decimal? Price { get; set; }

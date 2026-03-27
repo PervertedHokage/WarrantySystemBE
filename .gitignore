@@ -149,3 +149,20 @@ src/.vs/config/applicationhost.config
 # Custom
 appsettings.json
 appsettings.Development.json
+/WarrantySystem.Model/Entities/form_and_function.cs
+/WarrantySystem.Model/Entities/form_and_function_group.cs
+/WarrantySystem.Model/Entities/issues_group.cs
+/WarrantySystem.Model/Entities/order_detail.cs
+/WarrantySystem.Model/Entities/order_detail_info.cs
+/WarrantySystem.Model/Entities/quotation_detail.cs
+/WarrantySystem.Model/Entities/refresh_token.cs
+/WarrantySystem.Model/Entities/spare_part.cs
+/WarrantySystem.Model/Entities/spare_parts_group.cs
+/WarrantySystem.Model/Entities/user_group.cs
+/WarrantySystem.Model/Entities/user_group_link.cs
+/WarrantySystem.Model/Entities/user_group_right_distribution.cs
+/WarrantySystem.Model/Entities/warranty_claim.cs
+/WarrantySystem.Model/Entities/warranty_claim_tracking.cs
+/WarrantySystem.Model/Entities/work_order.cs
+/WarrantySystem.Model/Entities/work_order_spare_part.cs
+/WarrantySystem.Model/Entities/work_order_status.cs

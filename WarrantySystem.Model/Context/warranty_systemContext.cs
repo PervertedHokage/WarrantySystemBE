@@ -16,6 +16,8 @@ public partial class warranty_systemContext : DbContext
 
     public virtual DbSet<Customer> Customers { get; set; }
 
+    public virtual DbSet<Efmigrationshistory> Efmigrationshistories { get; set; }
+
     public virtual DbSet<FormAndFunction> FormAndFunctions { get; set; }
 
     public virtual DbSet<FormAndFunctionGroup> FormAndFunctionGroups { get; set; }
@@ -39,8 +41,6 @@ public partial class warranty_systemContext : DbContext
     public virtual DbSet<QuotationDetail> QuotationDetails { get; set; }
 
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
-
-    public virtual DbSet<ResponseHistory> ResponseHistories { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
 
@@ -94,6 +94,18 @@ public partial class warranty_systemContext : DbContext
             entity.Property(e => e.IsDeleted).HasDefaultValueSql("'0'");
             entity.Property(e => e.UpdatedBy).HasMaxLength(50);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<Efmigrationshistory>(entity =>
+        {
+            entity.HasKey(e => e.MigrationId).HasName("PRIMARY");
+
+            entity.ToTable("__efmigrationshistory");
+
+            entity.Property(e => e.MigrationId).HasMaxLength(150);
+            entity.Property(e => e.ProductVersion)
+                .IsRequired()
+                .HasMaxLength(32);
         });
 
         modelBuilder.Entity<FormAndFunction>(entity =>
@@ -230,8 +242,6 @@ public partial class warranty_systemContext : DbContext
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             entity.Property(e => e.DateEnd).HasColumnType("datetime");
             entity.Property(e => e.DateStart).HasColumnType("datetime");
-            entity.Property(e => e.Imei1).HasMaxLength(45);
-            entity.Property(e => e.Imei2).HasMaxLength(45);
             entity.Property(e => e.Price).HasPrecision(18, 2);
             entity.Property(e => e.Quantity).HasPrecision(10, 2);
             entity.Property(e => e.Stt).HasColumnName("STT");
@@ -287,7 +297,10 @@ public partial class warranty_systemContext : DbContext
                 .HasCharSet("utf8mb3");
             entity.Property(e => e.CreatedBy).HasMaxLength(255);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
-            entity.Property(e => e.Description).HasMaxLength(2000);
+            entity.Property(e => e.Description)
+                .HasMaxLength(200)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .UseCollation("utf8mb3_general_ci")
@@ -355,22 +368,6 @@ public partial class warranty_systemContext : DbContext
             entity.Property(e => e.Token)
                 .IsRequired()
                 .HasMaxLength(200);
-            entity.Property(e => e.UpdatedBy).HasMaxLength(255);
-            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
-        });
-
-        modelBuilder.Entity<ResponseHistory>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("response_history");
-
-            entity.Property(e => e.CreatedBy).HasMaxLength(255);
-            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
-            entity.Property(e => e.Note).HasColumnType("text");
-            entity.Property(e => e.ResponseDate).HasColumnType("datetime");
-            entity.Property(e => e.ResponseText).HasColumnType("text");
-            entity.Property(e => e.Status).HasComment("1 = Chờ xử lý, 2 = Đang xử lý, 3 = Đã giải quyết, 4 = Đã đóng");
             entity.Property(e => e.UpdatedBy).HasMaxLength(255);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
         });
@@ -617,9 +614,7 @@ public partial class warranty_systemContext : DbContext
                 .HasMaxLength(50)
                 .UseCollation("utf8mb3_general_ci")
                 .HasCharSet("utf8mb3");
-            entity.Property(e => e.Status)
-                .HasDefaultValueSql("'1'")
-                .HasComment("1 = Tiếp nhận thông tin, 2 = Xác minh thông tin, 3 = Chuẩn đoán sơ bộ, 4 = Báo giá, 5 = Sửa chữa/bảo hành, 6 = Hoàn trả");
+            entity.Property(e => e.Status).HasDefaultValueSql("'1'");
             entity.Property(e => e.Transporter)
                 .HasMaxLength(50)
                 .HasComment("Công ty vận chuyển")
@@ -650,9 +645,7 @@ public partial class warranty_systemContext : DbContext
 
             entity.ToTable("warranty_claim_used_spare_parts");
 
-            entity.HasIndex(e => e.Id, "Id_UNIQUE").IsUnique();
-
-            entity.Property(e => e.Note).HasColumnType("text");
+            entity.Property(e => e.Note).HasMaxLength(500);
             entity.Property(e => e.Quantity).HasPrecision(18, 2);
         });
 

@@ -63,9 +63,6 @@ public partial class WarrantyClaim
     /// </summary>
     public int? OperationEnvironment { get; set; }
 
-    /// <summary>
-    /// 1 = Tiếp nhận thông tin, 2 = Xác minh thông tin, 3 = Chuẩn đoán sơ bộ, 4 = Báo giá, 5 = Sửa chữa/bảo hành, 6 = Hoàn trả
-    /// </summary>
     public int? Status { get; set; }
 
     /// <summary>

@@ -6,7 +6,6 @@ using WarrantySystem.Shared.Common;
 
 namespace WarrantySystem.API.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class SerialCheckController : Controller

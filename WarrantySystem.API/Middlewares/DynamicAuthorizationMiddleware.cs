@@ -19,6 +19,14 @@ public class DynamicAuthorizationMiddleware
     public async Task InvokeAsync(HttpContext context, IUserPermissionService permissionService)
     {
         var endpoint = context.GetEndpoint();
+        
+        // 🔹 Check xem có gắn [AllowAnonymous]
+        var allowAnonymousAttr = endpoint?.Metadata.GetMetadata<IAllowAnonymous>();
+        if (allowAnonymousAttr != null)
+        {
+            await _next(context);
+            return;
+        }
 
         // 🔹 Check xem có gắn [ApiKeyAuthorize]
         var apiKeyAttr = endpoint?.Metadata.GetMetadata<ApiKeyAuthorizeAttribute>();
