@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WarrantySystem.Model.DTO;
@@ -89,9 +89,11 @@ namespace WarrantySystem.API.Controllers.WarrantyClaims
                 if (warrantyClaim == null)
                     return NotFound(ApiResponseFactory.Fail(null, "Warranty claims not found."));
                 var product = await _repo.GetById<Product>(warrantyClaim.ProductId ?? 0);
+                var attachments = await _repo.FindByExpression<WarrantyClaimAttachment>(a => a.WarrantyClaimId == id);
                 var dto = new WarrantyClaimDTO(warrantyClaim)
                 {
-                    ProductName = product!.Name
+                    ProductName = product?.Name ?? "",
+                    Attachments = attachments
                 };
                 return Ok(ApiResponseFactory.Success(dto));
             }
@@ -153,6 +155,67 @@ namespace WarrantySystem.API.Controllers.WarrantyClaims
             catch (Exception ex)
             {
                 return BadRequest(ApiResponseFactory.Fail(ex, "Failed to update warranty claim."));
+            }
+        }
+
+        [HttpPost("{id}/upload")]
+        [DisableRequestSizeLimit]
+        public async Task<IActionResult> UploadFiles(int id, [FromForm] List<IFormFile> files)
+        {
+            try
+            {
+                var warrantyClaim = await _repo.GetById<WarrantyClaim>(id);
+                if (warrantyClaim == null)
+                {
+                    return NotFound(ApiResponseFactory.Fail(null, "Warranty claim not found."));
+                }
+
+                if (files == null || files.Count == 0)
+                {
+                    return BadRequest(ApiResponseFactory.Fail(null, "No files uploaded."));
+                }
+
+                var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "warrantyclaims", id.ToString());
+                if (!Directory.Exists(uploadPath))
+                {
+                    Directory.CreateDirectory(uploadPath);
+                }
+
+                var createdAttachments = new List<WarrantyClaimAttachment>();
+
+                foreach (var file in files)
+                {
+                    if (file.Length > 0)
+                    {
+                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        var filePath = Path.Combine(uploadPath, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        var attachment = new WarrantyClaimAttachment
+                        {
+                            WarrantyClaimId = id,
+                            FileName = file.FileName,
+                            FilePath = $"/uploads/warrantyclaims/{id}/{fileName}",
+                            FileSize = file.Length,
+                            FileType = file.ContentType,
+                            CreatedDate = DateTime.Now,
+                            CreatedBy = warrantyClaim.CustomerName // Or use authenticated user if available
+                        };
+
+                        var created = await _repo.Insert(attachment);
+                        createdAttachments.Add(created);
+                    }
+                }
+
+                return Ok(ApiResponseFactory.Success(createdAttachments, "Files uploaded successfully."));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponseFactory.Fail(ex, "Failed to upload files."));
             }
         }
 

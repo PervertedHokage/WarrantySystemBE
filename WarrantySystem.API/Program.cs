@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MySqlConnector;
@@ -159,9 +159,10 @@ if (app.Environment.IsDevelopment())
 }
 
 //app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
 
-
+app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
 app.UseMiddleware<DynamicAuthorizationMiddleware>();

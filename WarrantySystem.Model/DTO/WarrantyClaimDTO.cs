@@ -1,4 +1,4 @@
-﻿using WarrantySystem.Model.Entities;
+using WarrantySystem.Model.Entities;
 
 namespace WarrantySystem.Model.DTO
 {
@@ -14,5 +14,6 @@ namespace WarrantySystem.Model.DTO
             }
         }
         public string ProductName { get; set; } = "";
+        public List<WarrantyClaimAttachment> Attachments { get; set; } = new();
     }
 }
